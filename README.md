@@ -2,6 +2,7 @@
 <!-- TOC -->
   * [Overview](#overview)
     * [Requirements](#requirements)
+    * [Installation](#installation)
     * [Example](#example)
     * [Usage](#usage)
   * [Contributing](#contributing)
@@ -14,7 +15,13 @@ This plugin implements [Telegram WebApp Auth](https://core.telegram.org/bots/web
 ### Requirements
 
 - Go 1.18+
-- [Pocketbase](https://github.com/pocketbase/pocketbase) 0.12+
+- [Pocketbase](https://github.com/pocketbase/pocketbase) 0.11.3+
+
+### Installation
+
+```bash
+go get github.com/iamelevich/pocketbase-plugin-telegram-auth
+```
 
 ### Example
 
