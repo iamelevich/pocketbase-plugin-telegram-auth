@@ -1558,8 +1558,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pocketbase/dbx v1.8.0 h1:kjf3mgmmE12t8IG48kJOeIyBmRi0A1sl6Hsezv4PoiA=
 github.com/pocketbase/dbx v1.8.0/go.mod h1:xXRCIAKTHMgUCyCKZm55pUOdvFziJjQfXaWKhu2vhMs=
-github.com/pocketbase/pocketbase v0.11.3-0.20230117210510-15583ba71886 h1:WynKyFVbmWJiuyhvuX4GSsk27lquZCVgp86Fg1juA44=
-github.com/pocketbase/pocketbase v0.11.3-0.20230117210510-15583ba71886/go.mod h1:RRrVPb677R6b0yapPnQN9bWNZnblUdTn4JNt1ddt6sA=
+github.com/pocketbase/pocketbase v0.11.3 h1:LmbO8Xc4X+z6peqFgx+tzeiEhNlucfQVE3H6+c9nClM=
+github.com/pocketbase/pocketbase v0.11.3/go.mod h1:h1ag5dNYQLk/5n+/r7tpYGEkjDU3vrh/vdYOfeDt/KM=
 github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndrE9hABlRI=
 github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSgv7Sy7s/s=
 github.com/pquerna/cachecontrol v0.0.0-20171018203845-0dec1b30a021/go.mod h1:prYjPmNq4d1NPVmpShWobRqXY3q7Vp+80DqgxxUrUIA=
