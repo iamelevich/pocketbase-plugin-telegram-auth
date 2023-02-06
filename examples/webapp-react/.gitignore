@@ -1,0 +1,7 @@
+# ignore everything
+/*
+
+# exclude from the ignore filter
+!.gitignore
+!tg_webapp/
+!main.go

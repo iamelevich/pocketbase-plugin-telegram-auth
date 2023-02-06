@@ -57,7 +57,18 @@ After that new route `POST /api/collections/users/auth-with-telegram` will be av
 
 ### Usage
 
-TODO
+Simple usage with js. You can check react example [here](./examples/webapp-react)
+```js
+const pb = new PocketBase('http://127.0.0.1:8090');
+pb.send('/api/collections/users/auth-with-telegram', {
+    method: 'POST',
+    body: {
+        data: window.Telegram.WebApp.initData
+    }
+}).then(res => {
+    pb.authStore.save(res.token, res.record);
+});
+```
 
 ## Contributing
 
