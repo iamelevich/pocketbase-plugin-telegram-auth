@@ -241,14 +241,18 @@ func (form *RecordTelegramLogin) Submit(
 
 	// check for existing relation with the auth record
 	rel, _ := form.dao.FindExternalAuthByProvider("telegram", authUser.Id)
-	switch {
-	case rel != nil:
+	if rel != nil {
 		authRecord, err = form.dao.FindRecordById(form.collection.Id, rel.RecordId)
 		if err != nil {
 			return nil, authUser, err
 		}
-	case form.loggedAuthRecord != nil && form.loggedAuthRecord.Collection().Id == form.collection.Id:
-		// fallback to the logged auth record (if any)
+	} else {
+		// Try to find record by telegram_id field if exists
+		authRecord, _ = form.dao.FindFirstRecordByData(form.collection.Id, "telegram_id", authUser.Id)
+	}
+
+	// fallback to the logged auth record (if any)
+	if authRecord == nil && form.loggedAuthRecord != nil && form.loggedAuthRecord.Collection().Id == form.collection.Id {
 		authRecord = form.loggedAuthRecord
 	}
 
