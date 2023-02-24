@@ -258,12 +258,15 @@ func (form *RecordTelegramLogin) SubmitWithTelegramData(
 	authUser.Name = strings.TrimSpace(tgData.FirstName + " " + tgData.LastName)
 	authUser.AvatarUrl = tgData.PhotoUrl
 
-	form.CreateData["name"] = authUser.Name
-	form.CreateData["first_name"] = tgData.FirstName
-	form.CreateData["last_name"] = tgData.LastName
-	form.CreateData["telegram_username"] = authUser.Username
-	form.CreateData["telegram_id"] = authUser.Id
-	form.CreateData["language_code"] = tgData.LanguageCode
+	// Set CreateData
+	form.CreateData = map[string]any{
+		"name":              authUser.Name,
+		"first_name":        tgData.FirstName,
+		"last_name":         tgData.LastName,
+		"telegram_username": tgData.Username,
+		"telegram_id":       tgData.Id,
+		"language_code":     tgData.LanguageCode,
+	}
 
 	return form.submitWithAuthUser(&authUser, beforeCreateFuncs...)
 }
