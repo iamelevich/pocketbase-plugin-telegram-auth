@@ -24,12 +24,13 @@ type Options struct {
 	CollectionKey string
 }
 
-type plugin struct {
-	app     core.App
-	options *Options
+type Plugin struct {
+	app        core.App
+	options    *Options
+	collection *models.Collection
 }
 
-func (p *plugin) Validate() error {
+func (p *Plugin) Validate() error {
 	if p.options.BotToken == "" {
 		return fmt.Errorf("bot token is required")
 	}
@@ -41,14 +42,52 @@ func (p *plugin) Validate() error {
 	return nil
 }
 
-func MustRegister(app core.App, options *Options) {
-	if err := Register(app, options); err != nil {
-		panic(err)
+func (p *Plugin) GetCollection() (*models.Collection, error) {
+	// If collection object stored in plugin - return it
+	if p.collection != nil {
+		return p.collection, nil
+	}
+
+	// If no collection object - find it, store and return
+	if collection, err := p.app.Dao().FindCollectionByNameOrId(p.options.CollectionKey); err != nil {
+		return nil, err
+	} else {
+		p.collection = collection
+		return collection, nil
 	}
 }
 
-func Register(app core.App, options *Options) error {
-	p := &plugin{app: app}
+func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLogin, error) {
+	collection, findCollectionErr := p.GetCollection()
+	if findCollectionErr != nil {
+		return nil, findCollectionErr
+	}
+	if collection.Type != models.CollectionTypeAuth {
+		return nil, errors.New("Wrong collection type. " + p.options.CollectionKey + " should be auth collection")
+	}
+
+	return forms.NewRecordTelegramLogin(p.app, p.options.BotToken, collection, optAuthRecord), nil
+}
+
+func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, *auth.AuthUser, error) {
+	form, err := p.GetForm(nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return form.SubmitWithTelegramData(&tgData)
+}
+
+func MustRegister(app core.App, options *Options) *Plugin {
+	if p, err := Register(app, options); err != nil {
+		panic(err)
+	} else {
+		return p
+	}
+}
+
+func Register(app core.App, options *Options) (*Plugin, error) {
+	p := &Plugin{app: app}
 
 	// Set default options
 	if options != nil {
@@ -59,7 +98,7 @@ func Register(app core.App, options *Options) error {
 
 	// Validate options
 	if err := p.Validate(); err != nil {
-		return err
+		return p, err
 	}
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
@@ -68,21 +107,21 @@ func Register(app core.App, options *Options) error {
 			Method: http.MethodPost,
 			Path:   "/api/collections/" + p.options.CollectionKey + "/auth-with-telegram",
 			Handler: func(c echo.Context) error {
-				collection, findCollectionErr := p.app.Dao().FindCollectionByNameOrId(p.options.CollectionKey)
+				collection, findCollectionErr := p.GetCollection()
 				if findCollectionErr != nil {
 					return findCollectionErr
 				}
-				if collection.Type != models.CollectionTypeAuth {
-					return errors.New("Wrong collection type. " + p.options.CollectionKey + " should be auth collection")
-				}
-				var fallbackAuthRecord *models.Record
 
+				var fallbackAuthRecord *models.Record
 				loggedAuthRecord, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
 				if loggedAuthRecord != nil && loggedAuthRecord.Collection().Id == collection.Id {
 					fallbackAuthRecord = loggedAuthRecord
 				}
 
-				form := forms.NewRecordTelegramLogin(p.app, p.options.BotToken, collection, fallbackAuthRecord)
+				form, getFormErr := p.GetForm(fallbackAuthRecord)
+				if getFormErr != nil {
+					return getFormErr
+				}
 				if readErr := c.Bind(form); readErr != nil {
 					return apis.NewBadRequestError("An error occurred while loading the submitted data.", readErr)
 				}
@@ -138,5 +177,5 @@ func Register(app core.App, options *Options) error {
 		return routeError
 	})
 
-	return nil
+	return p, nil
 }

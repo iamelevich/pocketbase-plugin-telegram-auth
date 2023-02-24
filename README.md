@@ -4,6 +4,7 @@
   * [Overview](#overview)
     * [Requirements](#requirements)
     * [Installation](#installation)
+    * [Autofill fields](#autofill-fields)
     * [Example](#example)
     * [Usage](#usage)
   * [Contributing](#contributing)
@@ -23,6 +24,15 @@ This plugin implements [Telegram WebApp Auth](https://core.telegram.org/bots/web
 ```bash
 go get github.com/iamelevich/pocketbase-plugin-telegram-auth
 ```
+
+### Autofill fields
+
+- `name` - string
+- `first_name` - string
+- `last_name` - string
+- `telegram_username` - string
+- `telegram_id` - string
+- `language_code` - string
 
 ### Example
 

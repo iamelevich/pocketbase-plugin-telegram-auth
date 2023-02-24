@@ -232,12 +232,47 @@ func (form *RecordTelegramLogin) Submit(
 		return nil, nil, err
 	}
 
-	authUser, err := form.GetAuthUserFromData()
-	if err != nil {
+	if authUser, err := form.GetAuthUserFromData(); err != nil {
 		return nil, nil, err
+	} else {
+		return form.submitWithAuthUser(authUser, beforeCreateFuncs...)
+	}
+}
+
+func (form *RecordTelegramLogin) SubmitWithTelegramData(
+	tgData *TelegramData, beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error,
+) (*models.Record, *auth.AuthUser, error) {
+	authUser := auth.AuthUser{}
+
+	authUser.RawUser = map[string]any{
+		"id":            tgData.Id,
+		"first_name":    tgData.FirstName,
+		"last_name":     tgData.LastName,
+		"username":      tgData.Username,
+		"language_code": tgData.LanguageCode,
+		"photo_url":     tgData.PhotoUrl,
 	}
 
+	authUser.Id = strconv.FormatInt(tgData.Id, 10)
+	authUser.Username = tgData.Username
+	authUser.Name = strings.TrimSpace(tgData.FirstName + " " + tgData.LastName)
+	authUser.AvatarUrl = tgData.PhotoUrl
+
+	form.CreateData["name"] = authUser.Name
+	form.CreateData["first_name"] = tgData.FirstName
+	form.CreateData["last_name"] = tgData.LastName
+	form.CreateData["telegram_username"] = authUser.Username
+	form.CreateData["telegram_id"] = authUser.Id
+	form.CreateData["language_code"] = tgData.LanguageCode
+
+	return form.submitWithAuthUser(&authUser, beforeCreateFuncs...)
+}
+
+func (form *RecordTelegramLogin) submitWithAuthUser(
+	authUser *auth.AuthUser, beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error,
+) (*models.Record, *auth.AuthUser, error) {
 	var authRecord *models.Record
+	var err error
 
 	// check for existing relation with the auth record
 	rel, _ := form.dao.FindExternalAuthByProvider("telegram", authUser.Id)

@@ -15,7 +15,7 @@ func main() {
 
 	// Setup tg auth for users collection
 	tgAuthPlugin.MustRegister(app, &tgAuthPlugin.Options{
-		BotToken:      "6086153355:AAHQR0dRvmboEIfbsPT93GHczOnT355gmUE", // Better to use ENV variable for that
+		BotToken:      "YOUR_SUPER_SECRET_BOT_TOKEN", // Better to use ENV variable for that
 		CollectionKey: "users",
 	})
 
