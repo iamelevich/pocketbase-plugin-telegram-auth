@@ -1,8 +1,9 @@
 package pocketbase_plugin_telegram_auth
 
 import (
-	"github.com/pocketbase/pocketbase/core"
 	"testing"
+
+	"github.com/pocketbase/pocketbase/core"
 )
 
 func TestPlugin_Validate(t *testing.T) {
