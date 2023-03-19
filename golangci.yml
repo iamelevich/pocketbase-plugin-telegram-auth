@@ -2,6 +2,8 @@ run:
   go: 1.18
   concurrency: 4
   timeout: 10m
+  skip-dirs:
+    - examples
 
 linters:
   disable-all: true
