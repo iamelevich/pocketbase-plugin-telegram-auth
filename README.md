@@ -1,5 +1,5 @@
 
-![Coverage](https://img.shields.io/badge/Coverage-53.8%25-yellow)
+![Coverage](https://img.shields.io/badge/Coverage-38.1%25-yellow)
 <!-- TOC -->
   * [Overview](#overview)
     * [Requirements](#requirements)
