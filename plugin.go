@@ -31,6 +31,10 @@ type Plugin struct {
 }
 
 func (p *Plugin) Validate() error {
+	if p.options == nil {
+		return fmt.Errorf("options is required")
+	}
+
 	if p.options.BotToken == "" {
 		return fmt.Errorf("bot token is required")
 	}
