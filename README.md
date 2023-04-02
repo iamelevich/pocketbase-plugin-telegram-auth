@@ -1,5 +1,6 @@
+[![Test](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/actions/workflows/test.yml/badge.svg)](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/iamelevich/pocketbase-plugin-telegram-auth/branch/master/graph/badge.svg?token=X91VFOND6D)](https://codecov.io/gh/iamelevich/pocketbase-plugin-telegram-auth)
 
-![Coverage](https://img.shields.io/badge/Coverage-38.1%25-yellow)
 <!-- TOC -->
 * [Overview](#overview)
   * [Requirements](#requirements)
