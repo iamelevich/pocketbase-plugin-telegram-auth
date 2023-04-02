@@ -225,6 +225,15 @@ You are free to do whatever you want with it, even offering it as a paid service
 - Run `make test` to run tests
 - Run `make test-coverage` to run tests with coverage report
 
+### Writing tests
+
+- Check [PocketBase testing guide](https://pocketbase.io/docs/testing/) this will be used for API calls testing
+- To run test server and update testdata run `make run_test_server`
+  - Go to admin panel http://localhost:8090/_/
+  - Login: `test@test.test`
+  - Password: `testpassword`
+  - Folder with sqlite db: `./test/test_pb_data`
+
 ## Linting
 
 - Run `make lint` to run linters
