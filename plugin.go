@@ -123,7 +123,7 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 			Handler: func(c echo.Context) error {
 				collection, findCollectionErr := p.GetCollection()
 				if findCollectionErr != nil {
-					return findCollectionErr
+					return apis.NewNotFoundError("Collection not found", findCollectionErr)
 				}
 
 				var fallbackAuthRecord *models.Record
@@ -134,7 +134,7 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 
 				form, getFormErr := p.GetForm(fallbackAuthRecord)
 				if getFormErr != nil {
-					return getFormErr
+					return apis.NewBadRequestError(getFormErr.Error(), getFormErr)
 				}
 				if readErr := c.Bind(form); readErr != nil {
 					return apis.NewBadRequestError("An error occurred while loading the submitted data.", readErr)
