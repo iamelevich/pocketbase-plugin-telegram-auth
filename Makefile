@@ -14,6 +14,9 @@ run_base_example:
 run_webapp_react_example:
 	cd examples/webapp-react/tg_webapp && npm i && npm run build && cd ../ && go run main.go serve
 
+run_test_server:
+	cd test && go run main.go serve
+
 # Generate docs
 # Require gomarkdoc (https://github.com/princjef/gomarkdoc)
 docs:
