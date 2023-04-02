@@ -30,6 +30,7 @@ type Plugin struct {
 	collection *models.Collection
 }
 
+// Validate plugin options. Return error if some option is invalid.
 func (p *Plugin) Validate() error {
 	if p.options == nil {
 		return fmt.Errorf("options is required")
@@ -46,6 +47,7 @@ func (p *Plugin) Validate() error {
 	return nil
 }
 
+// GetCollection returns PocketBase collection object for collection with name or id from options.CollectionKey.
 func (p *Plugin) GetCollection() (*models.Collection, error) {
 	// If collection object stored in plugin - return it
 	if p.collection != nil {
@@ -61,6 +63,7 @@ func (p *Plugin) GetCollection() (*models.Collection, error) {
 	}
 }
 
+// GetForm returns Telegram login form for collection with name or id from options.CollectionKey.
 func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLogin, error) {
 	collection, findCollectionErr := p.GetCollection()
 	if findCollectionErr != nil {
@@ -73,6 +76,7 @@ func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLog
 	return forms.NewRecordTelegramLogin(p.app, p.options.BotToken, collection, optAuthRecord), nil
 }
 
+// AuthByTelegramData returns auth record and auth user by Telegram data.
 func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, *auth.AuthUser, error) {
 	form, err := p.GetForm(nil)
 	if err != nil {
@@ -82,6 +86,7 @@ func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, 
 	return form.SubmitWithTelegramData(&tgData)
 }
 
+// MustRegister is a helper function to register plugin and panic if error occurred.
 func MustRegister(app core.App, options *Options) *Plugin {
 	if p, err := Register(app, options); err != nil {
 		panic(err)
@@ -90,6 +95,7 @@ func MustRegister(app core.App, options *Options) *Plugin {
 	}
 }
 
+// Register plugin in PocketBase app.
 func Register(app core.App, options *Options) (*Plugin, error) {
 	p := &Plugin{app: app}
 
