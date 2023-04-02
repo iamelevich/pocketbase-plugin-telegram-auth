@@ -20,7 +20,11 @@ import (
 
 // Options defines optional struct to customize the default plugin behavior.
 type Options struct {
-	BotToken      string
+	// BotToken is a Telegram bot token.
+	// You can get it from @BotFather.
+	BotToken string
+
+	// CollectionKey is a collection key (name or id) for PocketBase auth collection.
 	CollectionKey string
 }
 
