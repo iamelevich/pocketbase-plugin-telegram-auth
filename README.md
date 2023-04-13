@@ -126,7 +126,11 @@ Options defines optional struct to customize the default plugin behavior.
 
 ```go
 type Options struct {
-    BotToken      string
+    // BotToken is a Telegram bot token.
+    // You can get it from @BotFather.
+    BotToken string
+
+    // CollectionKey is a collection key (name or id) for PocketBase auth collection.
     CollectionKey string
 }
 ```
@@ -220,6 +224,15 @@ You are free to do whatever you want with it, even offering it as a paid service
 
 - Run `make test` to run tests
 - Run `make test-coverage` to run tests with coverage report
+
+### Writing tests
+
+- Check [PocketBase testing guide](https://pocketbase.io/docs/testing/) this will be used for API calls testing
+- To run test server and update testdata run `make run_test_server`
+  - Go to admin panel http://localhost:8090/_/
+  - Login: `test@test.test`
+  - Password: `testpassword`
+  - Folder with sqlite db: `./test/test_pb_data`
 
 ## Linting
 
