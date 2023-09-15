@@ -2103,6 +2103,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pocketbase/dbx v1.10.0 h1:58VIT7r6T+BnVbYVosvGBsPjQEic3/VFRYGT823vWSQ=
 github.com/pocketbase/dbx v1.10.0/go.mod h1:xXRCIAKTHMgUCyCKZm55pUOdvFziJjQfXaWKhu2vhMs=
+github.com/pocketbase/dbx v1.10.1 h1:cw+vsyfCJD8YObOVeqb93YErnlxwYMkNZ4rwN0G0AaA=
+github.com/pocketbase/dbx v1.10.1/go.mod h1:xXRCIAKTHMgUCyCKZm55pUOdvFziJjQfXaWKhu2vhMs=
 github.com/pocketbase/pocketbase v0.14.1 h1:THP6zkXliwATnXjcGzGeEqaAgkHgx6XDqDg+vCAdAHA=
 github.com/pocketbase/pocketbase v0.14.1/go.mod h1:Iig+1GFEVNwtDmK96o5/3g95YR0e+pBL8TyzfnEe9tk=
 github.com/pocketbase/pocketbase v0.14.4 h1:/amGpQV0WkmGWFJ0leUp1odg4NH1kB/ATZx9EwTX7jc=
