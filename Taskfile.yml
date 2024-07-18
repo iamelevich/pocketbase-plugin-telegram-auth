@@ -8,8 +8,8 @@ tasks:
   lint:staged:
     cmds:
       - git diff --cached > /tmp/stage.patch
-      - golangci-lint run -c ./golangci.yml --new-from-patch=/tmp/stage.patch
-      - rm /tmp/stage.patch
+      - defer: rm /tmp/stage.patch
+      - golangci-lint run --new-from-patch=/tmp/stage.patch -c ./golangci.yml
 
   test:
     cmds:
