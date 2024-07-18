@@ -142,8 +142,8 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 
 				record, authData, submitErr := form.Submit(func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error {
 					return createForm.DrySubmit(func(txDao *daos.Dao) error {
-						requestData := apis.RequestData(c)
-						requestData.Data = form.CreateData
+						requestInfo := apis.RequestInfo(c)
+						requestInfo.Data = form.CreateData
 
 						createRuleFunc := func(q *dbx.SelectQuery) error {
 							admin, _ := c.Get(apis.ContextAdminKey).(*models.Admin)
@@ -156,7 +156,7 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 							}
 
 							if *collection.CreateRule != "" {
-								resolver := resolvers.NewRecordFieldResolver(txDao, collection, requestData, true)
+								resolver := resolvers.NewRecordFieldResolver(txDao, collection, requestInfo, true)
 								if expr, err := search.FilterData(*collection.CreateRule).BuildExpr(resolver); err != nil {
 									return err
 								} else {

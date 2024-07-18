@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/daos"
 	pbForms "github.com/pocketbase/pocketbase/forms"
@@ -278,7 +279,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 	var err error
 
 	// check for existing relation with the auth record
-	rel, _ := form.dao.FindExternalAuthByProvider("telegram", authUser.Id)
+	rel, _ := form.dao.FindFirstExternalAuthByExpr(dbx.HashExp{"provider": "telegram", "providerId": authUser.Id})
 	if rel != nil {
 		authRecord, err = form.dao.FindRecordById(form.collection.Id, rel.RecordId)
 		if err != nil {
