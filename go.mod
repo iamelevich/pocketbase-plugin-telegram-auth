@@ -6,7 +6,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/labstack/echo/v5 f7d9f5142e9a
 	github.com/pocketbase/dbx v1.10.1
-	github.com/pocketbase/pocketbase v0.16.10
+	github.com/pocketbase/pocketbase v0.22.17
 )
 
 require (
