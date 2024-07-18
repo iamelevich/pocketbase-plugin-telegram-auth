@@ -3,13 +3,13 @@ version: 3
 tasks:
   lint:
     cmds:
-      - golangci-lint run -c ./golangci.yml ./...
+      - golangci-lint run ./...
 
   lint:staged:
     cmds:
       - git diff --cached > /tmp/stage.patch
       - defer: rm /tmp/stage.patch
-      - golangci-lint run --new-from-patch=/tmp/stage.patch -c ./golangci.yml
+      - golangci-lint run --new-from-patch=/tmp/stage.patch
 
   test:
     cmds:
