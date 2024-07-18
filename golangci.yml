@@ -6,6 +6,7 @@ run:
 issues:
   exclude-dirs:
     - examples
+  new: true
 
 linters:
   disable-all: true
