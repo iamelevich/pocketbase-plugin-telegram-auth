@@ -5,6 +5,12 @@ tasks:
     cmds:
       - golangci-lint run -c ./golangci.yml ./...
 
+  lint:staged:
+    cmds:
+      - git diff --cached > /tmp/stage.patch
+      - golangci-lint run -c ./golangci.yml --new-from-patch=/tmp/stage.patch
+      - rm /tmp/stage.patch
+
   test:
     cmds:
       - go test -v `go list ./... | grep -v -e './examples' -e './test'` --cover
