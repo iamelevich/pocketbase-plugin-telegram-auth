@@ -2,28 +2,29 @@
 [![codecov](https://codecov.io/gh/iamelevich/pocketbase-plugin-telegram-auth/branch/master/graph/badge.svg?token=X91VFOND6D)](https://codecov.io/gh/iamelevich/pocketbase-plugin-telegram-auth)
 
 <!-- TOC -->
-* [Overview](#overview)
-  * [Requirements](#requirements)
-  * [Installation](#installation)
-  * [Autofill fields](#autofill-fields)
-  * [Example](#example)
-    * [Usage](#usage)
-* [pocketbase\_plugin\_telegram\_auth](#pocketbaseplugintelegramauth)
-  * [Index](#index)
-  * [type Options](#type-options)
-  * [type Plugin](#type-plugin)
-    * [func MustRegister](#func-mustregister)
-    * [func Register](#func-register)
-    * [func \(\*Plugin\) AuthByTelegramData](#func-plugin-authbytelegramdata)
-    * [func \(\*Plugin\) GetCollection](#func-plugin-getcollection)
-    * [func \(\*Plugin\) GetForm](#func-plugin-getform)
-    * [func \(\*Plugin\) Validate](#func-plugin-validate)
-* [Contributing](#contributing)
-  * [Process](#process)
-  * [Development setup](#development-setup)
-  * [Testing](#testing)
-  * [Linting](#linting)
-  * [Docs update in README](#docs-update-in-readme)
+- [Overview](#overview)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Autofill fields](#autofill-fields)
+  - [Example](#example)
+    - [Usage](#usage)
+- [pocketbase\_plugin\_telegram\_auth](#pocketbase_plugin_telegram_auth)
+  - [Index](#index)
+  - [type Options](#type-options)
+  - [type Plugin](#type-plugin)
+    - [func MustRegister](#func-mustregister)
+    - [func Register](#func-register)
+    - [func (\*Plugin) AuthByTelegramData](#func-plugin-authbytelegramdata)
+    - [func (\*Plugin) GetCollection](#func-plugin-getcollection)
+    - [func (\*Plugin) GetForm](#func-plugin-getform)
+    - [func (\*Plugin) Validate](#func-plugin-validate)
+- [Contributing](#contributing)
+  - [Process](#process)
+  - [Development setup](#development-setup)
+  - [Testing](#testing)
+    - [Writing tests](#writing-tests)
+  - [Linting](#linting)
+  - [Docs update in README](#docs-update-in-readme)
 <!-- TOC -->
 
 # Overview
@@ -110,16 +111,17 @@ import "github.com/iamelevich/pocketbase-plugin-telegram-auth"
 
 ## Index
 
-- [type Options](<#type-options>)
-- [type Plugin](<#type-plugin>)
-  - [func MustRegister(app core.App, options *Options) *Plugin](<#func-mustregister>)
-  - [func Register(app core.App, options *Options) (*Plugin, error)](<#func-register>)
-  - [func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, *auth.AuthUser, error)](<#func-plugin-authbytelegramdata>)
-  - [func (p *Plugin) GetCollection() (*models.Collection, error)](<#func-plugin-getcollection>)
-  - [func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLogin, error)](<#func-plugin-getform>)
-  - [func (p *Plugin) Validate() error](<#func-plugin-validate>)
+- [type Options](<#Options>)
+- [type Plugin](<#Plugin>)
+  - [func MustRegister\(app core.App, options \*Options\) \*Plugin](<#MustRegister>)
+  - [func Register\(app core.App, options \*Options\) \(\*Plugin, error\)](<#Register>)
+  - [func \(p \*Plugin\) AuthByTelegramData\(tgData forms.TelegramData\) \(\*models.Record, \*auth.AuthUser, error\)](<#Plugin.AuthByTelegramData>)
+  - [func \(p \*Plugin\) GetCollection\(\) \(\*models.Collection, error\)](<#Plugin.GetCollection>)
+  - [func \(p \*Plugin\) GetForm\(optAuthRecord \*models.Record\) \(\*forms.RecordTelegramLogin, error\)](<#Plugin.GetForm>)
+  - [func \(p \*Plugin\) Validate\(\) error](<#Plugin.Validate>)
 
 
+<a name="Options"></a>
 ## type Options
 
 Options defines optional struct to customize the default plugin behavior.
@@ -135,7 +137,10 @@ type Options struct {
 }
 ```
 
+<a name="Plugin"></a>
 ## type Plugin
+
+
 
 ```go
 type Plugin struct {
@@ -143,6 +148,7 @@ type Plugin struct {
 }
 ```
 
+<a name="MustRegister"></a>
 ### func MustRegister
 
 ```go
@@ -151,6 +157,7 @@ func MustRegister(app core.App, options *Options) *Plugin
 
 MustRegister is a helper function to register plugin and panic if error occurred.
 
+<a name="Register"></a>
 ### func Register
 
 ```go
@@ -159,6 +166,7 @@ func Register(app core.App, options *Options) (*Plugin, error)
 
 Register plugin in PocketBase app.
 
+<a name="Plugin.AuthByTelegramData"></a>
 ### func \(\*Plugin\) AuthByTelegramData
 
 ```go
@@ -167,6 +175,7 @@ func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, 
 
 AuthByTelegramData returns auth record and auth user by Telegram data.
 
+<a name="Plugin.GetCollection"></a>
 ### func \(\*Plugin\) GetCollection
 
 ```go
@@ -175,6 +184,7 @@ func (p *Plugin) GetCollection() (*models.Collection, error)
 
 GetCollection returns PocketBase collection object for collection with name or id from options.CollectionKey.
 
+<a name="Plugin.GetForm"></a>
 ### func \(\*Plugin\) GetForm
 
 ```go
@@ -183,6 +193,7 @@ func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLog
 
 GetForm returns Telegram login form for collection with name or id from options.CollectionKey.
 
+<a name="Plugin.Validate"></a>
 ### func \(\*Plugin\) Validate
 
 ```go
@@ -190,8 +201,6 @@ func (p *Plugin) Validate() error
 ```
 
 Validate plugin options. Return error if some option is invalid.
-
-
 
 Generated by [gomarkdoc](<https://github.com/princjef/gomarkdoc>)
 
@@ -222,13 +231,13 @@ You are free to do whatever you want with it, even offering it as a paid service
 
 ## Testing
 
-- Run `make test` to run tests
-- Run `make test-coverage` to run tests with coverage report
+- Run `task test` to run tests
+- Run `task test:report` to run tests and get coverage report in `./coverage.html`
 
 ### Writing tests
 
 - Check [PocketBase testing guide](https://pocketbase.io/docs/testing/) this will be used for API calls testing
-- To run test server and update testdata run `make run_test_server`
+- To run test server and update testdata run `task run:test-server`
   - Go to admin panel http://localhost:8090/_/
   - Login: `test@test.test`
   - Password: `testpassword`
@@ -236,9 +245,8 @@ You are free to do whatever you want with it, even offering it as a paid service
 
 ## Linting
 
-- Run `make lint` to run linters
+- Run `task lint` to run linters
 
 ## Docs update in README
 
-- Install [gomarkdoc](https://github.com/princjef/gomarkdoc)
-- Run `make docs` to update docs in README
+- Run `task docs` to update docs in README (it will also install [gomarkdoc](https://github.com/princjef/gomarkdoc))

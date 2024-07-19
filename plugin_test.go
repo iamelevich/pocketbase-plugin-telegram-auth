@@ -224,16 +224,17 @@ func TestPlugin_GetForm(t *testing.T) {
 
 func TestPlugin_MustRegister(t *testing.T) {
 	// setup the test ApiScenario app instance
-	setupTestApp := func(options *Options) func() (*tests.TestApp, error) {
-		return func() (*tests.TestApp, error) {
+	setupTestApp := func(options *Options) func(*testing.T) *tests.TestApp {
+		return func(t *testing.T) *tests.TestApp {
 			testApp, err := tests.NewTestApp(testDataDir)
 			if err != nil {
-				return nil, err
+				t.Fatalf("Cannot initialize test app: %v", err)
+				return nil
 			}
 
 			MustRegister(testApp, options)
 
-			return testApp, nil
+			return testApp
 		}
 	}
 

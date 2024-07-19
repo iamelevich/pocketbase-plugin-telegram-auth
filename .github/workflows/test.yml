@@ -6,8 +6,8 @@ on:
       - master
   pull_request:
     paths:
-      - '*.go'
-      - 'go.mod'
+      - "*.go"
+      - "go.mod"
 
 jobs:
   test:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Test
         run: |
-          go test -v `go list ./... | grep -v ./examples` -covermode=atomic -coverprofile=coverage.out
+          go test -v `go list ./... | grep -v -e './examples' -e './test'` -covermode=atomic -coverprofile=coverage.out
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4

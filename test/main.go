@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	app := pocketbase.NewWithConfig(&pocketbase.Config{
+	app := pocketbase.NewWithConfig(pocketbase.Config{
 		DefaultDataDir: "./test_pb_data",
 	})
 
