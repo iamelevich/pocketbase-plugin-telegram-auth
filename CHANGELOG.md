@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.14.0...v0.14.1) (2024-07-19)
+
+
+### Bug Fixes
+
+* echo version fix ([974a7d9](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/974a7d99780db3a1c60e8ce77b69c23605b1a47b))
+
 ## [0.14.0](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.13.9...v0.14.0) (2024-07-19)
 
 
