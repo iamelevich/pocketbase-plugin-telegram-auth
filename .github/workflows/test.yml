@@ -5,9 +5,6 @@ on:
     branches:
       - master
   pull_request:
-    paths:
-      - "*.go"
-      - "go.mod"
 
 jobs:
   test:
@@ -31,3 +28,5 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
