@@ -20,9 +20,9 @@ func main() {
 	})
 
 	// Setup serving bundled react app
-	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+	app.OnServe().BindFunc(func(e *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
-		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./tg_webapp/dist"), true))
+		e.Router.GET("/*", apis.Static(os.DirFS("./tg_webapp/dist"), true))
 		return nil
 	})
 
