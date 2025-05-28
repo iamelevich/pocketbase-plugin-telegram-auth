@@ -8,7 +8,6 @@ import (
 	"hash"
 	"io"
 	"net/url"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -16,9 +15,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/daos"
 	pbForms "github.com/pocketbase/pocketbase/forms"
-	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/tools/auth"
 	"github.com/pocketbase/pocketbase/tools/security"
 )
@@ -26,13 +23,12 @@ import (
 // RecordTelegramLogin is an auth record Telegram login form.
 type RecordTelegramLogin struct {
 	app        core.App
-	dao        *daos.Dao
-	collection *models.Collection
+	collection *core.Collection
 	botToken   string
 
 	// Optional auth record that will be used if no external
 	// auth relation is found (if it is from the same collection)
-	loggedAuthRecord *models.Record
+	loggedAuthRecord *core.Record
 
 	// Telegram data from window.Telegram.WebApp.initData in Web App
 	// This is URL encoded string with all telegram data.
@@ -64,21 +60,20 @@ type TelegramData struct {
 //
 // If you want to submit the form as part of a transaction,
 // you can change the default Dao via [SetDao()].
-func NewRecordTelegramLogin(app core.App, botToken string, collection *models.Collection, optAuthRecord *models.Record) *RecordTelegramLogin {
+func NewRecordTelegramLogin(
+	app core.App,
+	botToken string,
+	collection *core.Collection,
+	optAuthRecord *core.Record,
+) *RecordTelegramLogin {
 	form := &RecordTelegramLogin{
 		app:              app,
 		botToken:         botToken,
 		collection:       collection,
-		dao:              app.Dao(),
 		loggedAuthRecord: optAuthRecord,
 	}
 
 	return form
-}
-
-// SetDao replaces the default form Dao instance with the provided one.
-func (form *RecordTelegramLogin) SetDao(dao *daos.Dao) {
-	form.dao = dao
 }
 
 // Validate makes the form validatable by implementing [validation.Validatable] interface.
@@ -227,8 +222,8 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 //
 // On success returns the authorized record model and the fetched provider's data.
 func (form *RecordTelegramLogin) Submit(
-	beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error,
-) (*models.Record, *auth.AuthUser, error) {
+	beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *core.Record, authUser *auth.AuthUser) error,
+) (*core.Record, *auth.AuthUser, error) {
 	if err := form.Validate(); err != nil {
 		return nil, nil, err
 	}
@@ -241,8 +236,9 @@ func (form *RecordTelegramLogin) Submit(
 }
 
 func (form *RecordTelegramLogin) SubmitWithTelegramData(
-	tgData *TelegramData, beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error,
-) (*models.Record, *auth.AuthUser, error) {
+	tgData *TelegramData,
+	beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *core.Record, authUser *auth.AuthUser) error,
+) (*core.Record, *auth.AuthUser, error) {
 	authUser := auth.AuthUser{}
 
 	authUser.RawUser = map[string]any{
@@ -273,21 +269,22 @@ func (form *RecordTelegramLogin) SubmitWithTelegramData(
 }
 
 func (form *RecordTelegramLogin) submitWithAuthUser(
-	authUser *auth.AuthUser, beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error,
-) (*models.Record, *auth.AuthUser, error) {
-	var authRecord *models.Record
+	authUser *auth.AuthUser,
+	beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *core.Record, authUser *auth.AuthUser) error,
+) (*core.Record, *auth.AuthUser, error) {
+	var authRecord *core.Record
 	var err error
 
 	// check for existing relation with the auth record
-	rel, _ := form.dao.FindFirstExternalAuthByExpr(dbx.HashExp{"provider": "telegram", "providerId": authUser.Id})
+	rel, _ := form.app.FindFirstExternalAuthByExpr(dbx.HashExp{"provider": "telegram", "providerId": authUser.Id})
 	if rel != nil {
-		authRecord, err = form.dao.FindRecordById(form.collection.Id, rel.RecordId)
+		authRecord, err = form.app.FindRecordById(form.collection.Id, rel.Id)
 		if err != nil {
 			return nil, authUser, err
 		}
 	} else {
 		// Try to find record by telegram_id field if exists
-		authRecord, _ = form.dao.FindFirstRecordByData(form.collection.Id, "telegram_id", authUser.Id)
+		authRecord, _ = form.app.FindFirstRecordByData(form.collection.Id, "telegram_id", authUser.Id)
 	}
 
 	// fallback to the logged auth record (if any)
@@ -295,28 +292,20 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 		authRecord = form.loggedAuthRecord
 	}
 
-	saveErr := form.dao.RunInTransaction(func(txDao *daos.Dao) error {
+	saveErr := form.app.RunInTransaction(func(txApp core.App) error {
 		if authRecord == nil {
-			authRecord = models.NewRecord(form.collection)
-			authRecord.RefreshId()
+			authRecord = core.NewRecord(form.collection)
+			authRecord.RefreshTokenKey()
+			authRecord.SetPassword(security.RandomString(30))
+			authRecord.Id = core.GenerateDefaultRandomId()
 			authRecord.MarkAsNew()
+
 			createForm := pbForms.NewRecordUpsert(form.app, authRecord)
-			createForm.SetFullManageAccess(true)
-			createForm.SetDao(txDao)
-			if authUser.Username != "" && regexp.MustCompile(`^\w[\w.]*$`).MatchString(authUser.Username) {
-				createForm.Username = form.dao.SuggestUniqueAuthRecordUsername(form.collection.Id, authUser.Username)
-			}
+			createForm.GrantSuperuserAccess()
+			createForm.SetApp(txApp)
 
 			// load custom data
-			if err := createForm.LoadData(form.CreateData); err != nil {
-				return err
-			}
-
-			// load the Telegram profile data as fallback
-			if createForm.Password == "" {
-				createForm.Password = security.RandomString(30)
-				createForm.PasswordConfirm = createForm.Password
-			}
+			createForm.Load(form.CreateData)
 
 			for _, f := range beforeCreateFuncs {
 				if f == nil {
@@ -335,13 +324,13 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 
 		// create ExternalAuth relation if missing
 		if rel == nil {
-			rel = &models.ExternalAuth{
-				CollectionId: authRecord.Collection().Id,
-				RecordId:     authRecord.Id,
-				Provider:     "telegram",
-				ProviderId:   authUser.Id,
-			}
-			if err := txDao.SaveExternalAuth(rel); err != nil {
+			rel = core.NewExternalAuth(txApp)
+			rel.SetRecordRef(authRecord.Id)
+			rel.SetCollectionRef(authRecord.Collection().Id)
+			rel.SetProvider("telegram")
+			rel.SetProviderId(authUser.Id)
+
+			if err := txApp.SaveNoValidate(rel); err != nil {
 				return err
 			}
 		}
