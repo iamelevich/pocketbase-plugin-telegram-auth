@@ -278,7 +278,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 	// check for existing relation with the auth record
 	rel, _ := form.app.FindFirstExternalAuthByExpr(dbx.HashExp{"provider": "telegram", "providerId": authUser.Id})
 	if rel != nil {
-		authRecord, err = form.app.FindRecordById(form.collection.Id, rel.Id)
+		authRecord, err = form.app.FindRecordById(form.collection.Id, rel.RecordRef())
 		if err != nil {
 			return nil, authUser, err
 		}
@@ -316,7 +316,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 				}
 			}
 
-			// create the new auth record
+			// create the new 	auth record
 			if err := createForm.Submit(); err != nil {
 				return err
 			}
