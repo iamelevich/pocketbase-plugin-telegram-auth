@@ -1,4 +1,4 @@
-golang 1.25.2
+golang 1.25.3
 golangci-lint 2.5.0
 pre-commit 4.3.0
 task 3.38.0
