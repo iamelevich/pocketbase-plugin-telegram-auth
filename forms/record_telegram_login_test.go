@@ -54,7 +54,7 @@ func TestUserTelegramLoginValidate(t *testing.T) {
 	}
 
 	for _, s := range scenarios {
-		authCollection, _ := app.Dao().FindCollectionByNameOrId(s.collectionName)
+		authCollection, _ := app.FindCollectionByNameOrId(s.collectionName)
 		if authCollection == nil {
 			t.Errorf("[%s] Failed to fetch auth collection", s.testName)
 		}
@@ -136,7 +136,7 @@ func TestUserTelegramGetDataParsed(t *testing.T) {
 	}
 
 	for _, s := range scenarios {
-		authCollection, _ := app.Dao().FindCollectionByNameOrId(s.collectionName)
+		authCollection, _ := app.FindCollectionByNameOrId(s.collectionName)
 		if authCollection == nil {
 			t.Errorf("[%s] Failed to fetch auth collection", s.testName)
 		}
