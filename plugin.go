@@ -1,22 +1,28 @@
 package pocketbase_plugin_telegram_auth
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"net/http"
+	"log"
 
 	"github.com/iamelevich/pocketbase-plugin-telegram-auth/forms"
-	"github.com/labstack/echo/v5"
-	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/daos"
-	pbForms "github.com/pocketbase/pocketbase/forms"
-	"github.com/pocketbase/pocketbase/models"
-	"github.com/pocketbase/pocketbase/resolvers"
 	"github.com/pocketbase/pocketbase/tools/auth"
-	"github.com/pocketbase/pocketbase/tools/search"
+	"golang.org/x/oauth2"
 )
+
+// telegramProvider is a minimal auth.Provider implementation for validation.
+// It exists so "telegram" is recognized in auth.Providers for ExternalAuth records.
+// The actual auth flow is handled by the plugin's custom endpoint, not OAuth2.
+type telegramProvider struct {
+	auth.BaseProvider
+}
+
+func (p *telegramProvider) FetchAuthUser(_ *oauth2.Token) (*auth.AuthUser, error) {
+	return nil, errors.New("telegram auth uses custom flow, not OAuth2")
+}
 
 // Options defines optional struct to customize the default plugin behavior.
 type Options struct {
@@ -31,7 +37,7 @@ type Options struct {
 type Plugin struct {
 	app        core.App
 	options    *Options
-	collection *models.Collection
+	collection *core.Collection
 }
 
 // Validate plugin options. Return error if some option is invalid.
@@ -52,14 +58,14 @@ func (p *Plugin) Validate() error {
 }
 
 // GetCollection returns PocketBase collection object for collection with name or id from options.CollectionKey.
-func (p *Plugin) GetCollection() (*models.Collection, error) {
+func (p *Plugin) GetCollection() (*core.Collection, error) {
 	// If collection object stored in plugin - return it
 	if p.collection != nil {
 		return p.collection, nil
 	}
 
 	// If no collection object - find it, store and return
-	if collection, err := p.app.Dao().FindCollectionByNameOrId(p.options.CollectionKey); err != nil {
+	if collection, err := p.app.FindCollectionByNameOrId(p.options.CollectionKey); err != nil {
 		return nil, err
 	} else {
 		p.collection = collection
@@ -68,12 +74,12 @@ func (p *Plugin) GetCollection() (*models.Collection, error) {
 }
 
 // GetForm returns Telegram login form for collection with name or id from options.CollectionKey.
-func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLogin, error) {
+func (p *Plugin) GetForm(optAuthRecord *core.Record) (*forms.RecordTelegramLogin, error) {
 	collection, findCollectionErr := p.GetCollection()
 	if findCollectionErr != nil {
 		return nil, findCollectionErr
 	}
-	if collection.Type != models.CollectionTypeAuth {
+	if collection.Type != core.CollectionTypeAuth {
 		return nil, errors.New("Wrong collection type. " + p.options.CollectionKey + " should be auth collection")
 	}
 
@@ -81,7 +87,7 @@ func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLog
 }
 
 // AuthByTelegramData returns auth record and auth user by Telegram data.
-func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, *auth.AuthUser, error) {
+func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*core.Record, *auth.AuthUser, error) {
 	form, err := p.GetForm(nil)
 	if err != nil {
 		return nil, nil, err
@@ -115,80 +121,49 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 		return p, err
 	}
 
-	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		// or you can also use the shorter e.Router.GET("/articles/:slug", handler, middlewares...)
-		_, routeError := e.Router.AddRoute(echo.Route{
-			Method: http.MethodPost,
-			Path:   "/api/collections/" + p.options.CollectionKey + "/auth-with-telegram",
-			Handler: func(c echo.Context) error {
-				collection, findCollectionErr := p.GetCollection()
-				if findCollectionErr != nil {
-					return apis.NewNotFoundError("Collection not found", findCollectionErr)
-				}
+	auth.Providers["telegram"] = func() auth.Provider {
+		// Minimal provider for ExternalAuth validation (core/external_auth_model.go).
+		// Actual auth is handled by the plugin's custom endpoint, not OAuth2.
+		provider := &telegramProvider{}
+		provider.SetDisplayName("Telegram")
+		provider.SetClientId("telegram")
+		provider.SetContext(context.Background())
+		return provider
+	}
 
-				var fallbackAuthRecord *models.Record
-				loggedAuthRecord, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-				if loggedAuthRecord != nil && loggedAuthRecord.Collection().Id == collection.Id {
-					fallbackAuthRecord = loggedAuthRecord
-				}
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		path := "/api/collections/" + p.options.CollectionKey + "/auth-with-telegram"
+		se.Router.POST(path, func(e *core.RequestEvent) error {
+			collection, findCollectionErr := p.GetCollection()
+			if findCollectionErr != nil {
+				return e.NotFoundError("Collection not found", findCollectionErr)
+			}
 
-				form, getFormErr := p.GetForm(fallbackAuthRecord)
-				if getFormErr != nil {
-					return apis.NewBadRequestError(getFormErr.Error(), getFormErr)
-				}
-				if readErr := c.Bind(form); readErr != nil {
-					return apis.NewBadRequestError("An error occurred while loading the submitted data.", readErr)
-				}
+			var fallbackAuthRecord *core.Record
+			if e.Auth != nil && e.Auth.Collection().Id == collection.Id {
+				fallbackAuthRecord = e.Auth
+			}
 
-				record, authData, submitErr := form.Submit(func(createForm *pbForms.RecordUpsert, authRecord *models.Record, authUser *auth.AuthUser) error {
-					return createForm.DrySubmit(func(txDao *daos.Dao) error {
-						requestInfo := apis.RequestInfo(c)
-						requestInfo.Data = form.CreateData
+			form, getFormErr := p.GetForm(fallbackAuthRecord)
+			if getFormErr != nil {
+				log.Default().Println("Error getting form", "err", getFormErr)
+				return e.BadRequestError(getFormErr.Error(), getFormErr)
+			}
+			if err := e.BindBody(form); err != nil {
+				log.Default().Println("Error binding body", "err", err)
+				return e.BadRequestError("Failed to read request data", err)
+			}
 
-						createRuleFunc := func(q *dbx.SelectQuery) error {
-							admin, _ := c.Get(apis.ContextAdminKey).(*models.Admin)
-							if admin != nil {
-								return nil // either admin or the rule is empty
-							}
+			record, _, submitErr := form.Submit()
+			if submitErr != nil {
+				log.Default().Println("Error submitting form", "err", submitErr)
+				return e.BadRequestError("Failed to authenticate.", submitErr)
+			}
 
-							if collection.CreateRule == nil {
-								return errors.New("Only admins can create new accounts with OAuth2")
-							}
-
-							if *collection.CreateRule != "" {
-								resolver := resolvers.NewRecordFieldResolver(txDao, collection, requestInfo, true)
-								if expr, err := search.FilterData(*collection.CreateRule).BuildExpr(resolver); err != nil {
-									return err
-								} else {
-									if updateQueryError := resolver.UpdateQuery(q); updateQueryError != nil {
-										return updateQueryError
-									}
-									q.AndWhere(expr)
-								}
-							}
-
-							return nil
-						}
-
-						if _, err := txDao.FindRecordById(collection.Id, createForm.Id, createRuleFunc); err != nil {
-							return fmt.Errorf("Failed create rule constraint: %w", err)
-						}
-
-						return nil
-					})
-				})
-				if submitErr != nil {
-					return apis.NewBadRequestError("Failed to authenticate.", submitErr)
-				}
-
-				return apis.RecordAuthResponse(p.app, c, record, authData)
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
+			meta := map[string]any{"isNew": record.IsNew()}
+			return apis.RecordAuthResponse(e, record, "telegram", meta)
 		})
-
-		return routeError
+		return se.Next()
 	})
 
 	return p, nil
