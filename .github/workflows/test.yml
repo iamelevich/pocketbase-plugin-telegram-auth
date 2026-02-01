@@ -12,7 +12,7 @@ jobs:
     name: Test
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -27,6 +27,6 @@ jobs:
           go test -v `go list ./... | grep -v -e './examples' -e './test'` -covermode=atomic -coverprofile=coverage.out
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
