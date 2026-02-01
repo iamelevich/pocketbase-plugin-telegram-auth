@@ -225,19 +225,17 @@ You are free to do whatever you want with it, even offering it as a paid service
 
 ## Development setup
 
-- Install [asdf](https://asdf-vm.com/#/core-manage-asdf-vm) and plugins for tools listed in [.tool-versions](.tool-versions) file.
-- This repo also uses [asdf-direnv](https://github.com/asdf-community/asdf-direnv). Install it and run `direnv allow` in the repo root.
-- Setup `pre-commit` hooks with `pre-commit install -t commit-msg -t pre-commit`
-
+- Install [mise](https://mise.jdx.dev/installing-mise.html) and run `mise install`.
+- Setup `prek` hooks with `prek install -t commit-msg -t pre-commit`
 ## Testing
 
-- Run `task test` to run tests
-- Run `task test:report` to run tests and get coverage report in `./coverage.html`
+- Run `mise run test` to run tests
+- Run `mise run test-report` to run tests and get coverage report in `./coverage.html`
 
 ### Writing tests
 
 - Check [PocketBase testing guide](https://pocketbase.io/docs/testing/) this will be used for API calls testing
-- To run test server and update testdata run `task run:test-server`
+- To run test server and update testdata run `mise run run-test-server`
   - Go to admin panel http://localhost:8090/_/
   - Login: `test@test.test`
   - Password: `testpassword`
@@ -245,8 +243,8 @@ You are free to do whatever you want with it, even offering it as a paid service
 
 ## Linting
 
-- Run `task lint` to run linters
+- Run `mise run lint` to run linters
 
 ## Docs update in README
 
-- Run `task docs` to update docs in README (it will also install [gomarkdoc](https://github.com/princjef/gomarkdoc))
+- Run `mise run docs` to update docs in README (it will also install [gomarkdoc](https://github.com/princjef/gomarkdoc))
