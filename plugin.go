@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/iamelevich/pocketbase-plugin-telegram-auth/forms"
 	"github.com/pocketbase/pocketbase/apis"
@@ -146,17 +145,17 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 
 			form, getFormErr := p.GetForm(fallbackAuthRecord)
 			if getFormErr != nil {
-				log.Default().Println("Error getting form", "err", getFormErr)
+				// log.Default().Println("Error getting form", "err", getFormErr)
 				return e.BadRequestError(getFormErr.Error(), getFormErr)
 			}
 			if err := e.BindBody(form); err != nil {
-				log.Default().Println("Error binding body", "err", err)
+				// log.Default().Println("Error binding body", "err", err)
 				return e.BadRequestError("Failed to read request data", err)
 			}
 
 			record, _, submitErr := form.Submit()
 			if submitErr != nil {
-				log.Default().Println("Error submitting form", "err", submitErr)
+				// log.Default().Println("Error submitting form", "err", submitErr)
 				return e.BadRequestError("Failed to authenticate.", submitErr)
 			}
 

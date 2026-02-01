@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"hash"
 	"io"
-	"log"
 	"net/url"
 	"regexp"
 	"sort"
@@ -220,12 +219,12 @@ func (form *RecordTelegramLogin) Submit(
 	beforeCreateFuncs ...func(createForm *pbForms.RecordUpsert, authRecord *core.Record, authUser *auth.AuthUser) error,
 ) (*core.Record, *auth.AuthUser, error) {
 	if err := form.Validate(); err != nil {
-		log.Default().Println("Error validating form", "err", err)
+		// log.Default().Println("Error validating form", "err", err)
 		return nil, nil, err
 	}
 
 	if authUser, err := form.GetAuthUserFromData(); err != nil {
-		log.Default().Println("Error getting auth user from data", "err", err)
+		// log.Default().Println("Error getting auth user from data", "err", err)
 		return nil, nil, err
 	} else {
 		return form.submitWithAuthUser(authUser, beforeCreateFuncs...)
@@ -279,7 +278,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 	if rel != nil {
 		authRecord, err = form.app.FindRecordById(form.collection, rel.RecordRef())
 		if err != nil {
-			log.Default().Println("Error finding auth record", "err", err)
+			// log.Default().Println("Error finding auth record", "err", err)
 			return nil, authUser, err
 		}
 	} else {
@@ -314,14 +313,14 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 					continue
 				}
 				if err := f(createForm, authRecord, authUser); err != nil {
-					log.Default().Println("Error running before create function", "err", err)
+					// log.Default().Println("Error running before create function", "err", err)
 					return err
 				}
 			}
 
 			// create the new auth record
 			if err := createForm.Submit(); err != nil {
-				log.Default().Println("Error creating auth record", "err", err)
+				// log.Default().Println("Error creating auth record", "err", err)
 				return err
 			}
 		}
@@ -334,7 +333,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 			rel.SetProvider("telegram")
 			rel.SetProviderId(authUser.Id)
 			if err := txApp.Save(rel); err != nil {
-				log.Default().Println("Error saving ExternalAuth relation", "err", err)
+				// log.Default().Println("Error saving ExternalAuth relation", "err", err)
 				return err
 			}
 		}
@@ -343,7 +342,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 	})
 
 	if saveErr != nil {
-		log.Default().Println("Error saving auth record", "err", saveErr)
+		// log.Default().Println("Error saving auth record", "err", saveErr)
 		return nil, authUser, saveErr
 	}
 
