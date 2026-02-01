@@ -33,8 +33,8 @@ This plugin implements [Telegram WebApp Auth](https://core.telegram.org/bots/web
 
 ## Requirements
 
-- Go 1.18+
-- [Pocketbase](https://github.com/pocketbase/pocketbase) 0.12+
+- Go 1.25+
+- [Pocketbase](https://github.com/pocketbase/pocketbase) 0.36+
 
 ## Installation
 
