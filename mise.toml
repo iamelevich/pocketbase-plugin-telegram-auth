@@ -1,0 +1,64 @@
+[tools]
+go = "1.25.6"
+golangci-lint = "latest"
+prek = "latest"
+node = "latest" # for examples/webapp-react
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = """
+golangci-lint run ./...
+"""
+
+[tasks.lint-staged]
+description = "Run golangci-lint on staged changes"
+run = """
+git diff --cached > /tmp/stage.patch
+golangci-lint run --new-from-patch=/tmp/stage.patch
+rm /tmp/stage.patch
+"""
+
+[tasks.test]
+description = "Run tests"
+run = """
+go test -v `go list ./... | grep -v -e './examples' -e './test'` --cover
+"""
+
+[tasks.test-report]
+description = "Run tests and generate coverage report"
+run = """
+go test -v `go list ./... | grep -v -e './examples' -e './test'` --coverprofile=coverage.out
+go tool cover -html=coverage.out -o coverage.html
+"""
+
+[tasks.run-example-base]
+description = "Run example base"
+dir = "examples/base"
+run = """
+go run main.go serve
+"""
+
+[tasks.run-example-react]
+description = "Run example react"
+dir = "examples/webapp-react"
+run = """
+cd ./tg_webapp
+npm i
+npm run build
+cd ..
+go run main.go serve
+"""
+
+[tasks.run-test-server]
+description = "Run test server"
+dir = "test"
+run = """
+go run main.go serve
+"""
+
+[tasks.docs]
+description = "Generate docs"
+run = """
+go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+gomarkdoc -o README.md -e .
+"""
