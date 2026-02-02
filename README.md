@@ -115,14 +115,14 @@ import "github.com/iamelevich/pocketbase-plugin-telegram-auth"
 - [type Plugin](<#Plugin>)
   - [func MustRegister\(app core.App, options \*Options\) \*Plugin](<#MustRegister>)
   - [func Register\(app core.App, options \*Options\) \(\*Plugin, error\)](<#Register>)
-  - [func \(p \*Plugin\) AuthByTelegramData\(tgData forms.TelegramData\) \(\*models.Record, \*auth.AuthUser, error\)](<#Plugin.AuthByTelegramData>)
-  - [func \(p \*Plugin\) GetCollection\(\) \(\*models.Collection, error\)](<#Plugin.GetCollection>)
-  - [func \(p \*Plugin\) GetForm\(optAuthRecord \*models.Record\) \(\*forms.RecordTelegramLogin, error\)](<#Plugin.GetForm>)
+  - [func \(p \*Plugin\) AuthByTelegramData\(tgData forms.TelegramData\) \(\*core.Record, \*auth.AuthUser, error\)](<#Plugin.AuthByTelegramData>)
+  - [func \(p \*Plugin\) GetCollection\(\) \(\*core.Collection, error\)](<#Plugin.GetCollection>)
+  - [func \(p \*Plugin\) GetForm\(optAuthRecord \*core.Record\) \(\*forms.RecordTelegramLogin, error\)](<#Plugin.GetForm>)
   - [func \(p \*Plugin\) Validate\(\) error](<#Plugin.Validate>)
 
 
 <a name="Options"></a>
-## type Options
+## type [Options](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L27-L34>)
 
 Options defines optional struct to customize the default plugin behavior.
 
@@ -138,7 +138,7 @@ type Options struct {
 ```
 
 <a name="Plugin"></a>
-## type Plugin
+## type [Plugin](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L36-L40>)
 
 
 
@@ -149,7 +149,7 @@ type Plugin struct {
 ```
 
 <a name="MustRegister"></a>
-### func MustRegister
+### func [MustRegister](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L99>)
 
 ```go
 func MustRegister(app core.App, options *Options) *Plugin
@@ -158,7 +158,7 @@ func MustRegister(app core.App, options *Options) *Plugin
 MustRegister is a helper function to register plugin and panic if error occurred.
 
 <a name="Register"></a>
-### func Register
+### func [Register](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L108>)
 
 ```go
 func Register(app core.App, options *Options) (*Plugin, error)
@@ -167,34 +167,34 @@ func Register(app core.App, options *Options) (*Plugin, error)
 Register plugin in PocketBase app.
 
 <a name="Plugin.AuthByTelegramData"></a>
-### func \(\*Plugin\) AuthByTelegramData
+### func \(\*Plugin\) [AuthByTelegramData](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L89>)
 
 ```go
-func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*models.Record, *auth.AuthUser, error)
+func (p *Plugin) AuthByTelegramData(tgData forms.TelegramData) (*core.Record, *auth.AuthUser, error)
 ```
 
 AuthByTelegramData returns auth record and auth user by Telegram data.
 
 <a name="Plugin.GetCollection"></a>
-### func \(\*Plugin\) GetCollection
+### func \(\*Plugin\) [GetCollection](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L60>)
 
 ```go
-func (p *Plugin) GetCollection() (*models.Collection, error)
+func (p *Plugin) GetCollection() (*core.Collection, error)
 ```
 
 GetCollection returns PocketBase collection object for collection with name or id from options.CollectionKey.
 
 <a name="Plugin.GetForm"></a>
-### func \(\*Plugin\) GetForm
+### func \(\*Plugin\) [GetForm](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L76>)
 
 ```go
-func (p *Plugin) GetForm(optAuthRecord *models.Record) (*forms.RecordTelegramLogin, error)
+func (p *Plugin) GetForm(optAuthRecord *core.Record) (*forms.RecordTelegramLogin, error)
 ```
 
 GetForm returns Telegram login form for collection with name or id from options.CollectionKey.
 
 <a name="Plugin.Validate"></a>
-### func \(\*Plugin\) Validate
+### func \(\*Plugin\) [Validate](<https://github.com/iamelevich/pocketbase-plugin-telegram-auth/blob/master/plugin.go#L43>)
 
 ```go
 func (p *Plugin) Validate() error
