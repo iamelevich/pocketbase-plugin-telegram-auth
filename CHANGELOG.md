@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.1](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.0...v0.15.1) (2026-02-08)
+
+
+### Bug Fixes
+
+* **deps:** update module golang.org/x/oauth2 to v0.35.0 ([137f428](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/137f4289d47560cb5312b762c542c0048016704c))
+* **deps:** update module golang.org/x/oauth2 to v0.35.0 ([181023a](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/181023a14f0524d14f44bf73f71c42d69e731b4a))
+
 ## [0.15.0](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.14.4...v0.15.0) (2026-02-01)
 
 
