@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.15.1](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.0...v0.15.1) (2026-02-11)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/pocketbase/dbx to v1.12.0 ([0cf1774](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/0cf17745b1dcda947efed5053ac9e83b55827703))
+* **deps:** update module github.com/pocketbase/dbx to v1.12.0 ([b8612ce](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/b8612cee79f0a8931f9ccfcf2a2c6941e8cbf13c))
+* **deps:** update module golang.org/x/oauth2 to v0.35.0 ([137f428](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/137f4289d47560cb5312b762c542c0048016704c))
+* **deps:** update module golang.org/x/oauth2 to v0.35.0 ([181023a](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/181023a14f0524d14f44bf73f71c42d69e731b4a))
+
 ## [0.15.0](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.14.4...v0.15.0) (2026-02-01)
 
 
