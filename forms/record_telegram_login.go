@@ -21,6 +21,8 @@ import (
 	"github.com/pocketbase/pocketbase/tools/security"
 )
 
+var tgUsernameRegex = regexp.MustCompile(`^\w[\w.]*$`)
+
 // RecordTelegramLogin is an auth record Telegram login form.
 type RecordTelegramLogin struct {
 	app        core.App
@@ -45,6 +47,9 @@ type RecordTelegramLogin struct {
 	// Additional data that will be used for creating a new auth record
 	// if an existing Telegram account doesn't exist.
 	CreateData map[string]any `form:"createData" json:"createData"`
+
+	// Cache for parsed Telegram data
+	params url.Values
 }
 
 type TelegramData struct {
@@ -78,7 +83,6 @@ func (form *RecordTelegramLogin) Validate() error {
 
 func (form *RecordTelegramLogin) checkTelegramData(value any) error {
 	data, _ := value.(string)
-
 	if result, err := form.checkTelegramAuthorization(data); !result || err != nil {
 		return validation.NewError("validation_invalid_data", "Provided data is invalid.")
 	}
@@ -86,14 +90,30 @@ func (form *RecordTelegramLogin) checkTelegramData(value any) error {
 	return nil
 }
 
+func (form *RecordTelegramLogin) getParams() (url.Values, error) {
+	if form.params != nil {
+		return form.params, nil
+	}
+
+	params, err := url.ParseQuery(form.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	form.params = params
+	return params, nil
+}
+
 // checkTelegramAuthorization data param. Check https://core.telegram.org/bots/webapps#validating-data-received-via-the-web-app
+// Optimization: Reduces redundant parsing and allocations.
 func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, error) {
 	// Parse string
-	params, err := url.ParseQuery(data)
+	params, err := form.getParams()
 	if err != nil {
 		return false, err
 	}
-	strs := []string{}
+
+	strs := make([]string, 0, len(params))
 	var hashFromTelegram = ""
 	// Extract hashFromTelegram and create slice of other params
 	for k, v := range params {
@@ -105,14 +125,9 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 	}
 	// Sort extracted params
 	sort.Strings(strs)
+
 	// Create a string with params to validate
-	var imploded = ""
-	for _, s := range strs {
-		if imploded != "" {
-			imploded += "\n"
-		}
-		imploded += s
-	}
+	imploded := strings.Join(strs, "\n")
 
 	// Create hashFromTelegram to check is provided data valid
 	token := form.botToken
@@ -141,7 +156,7 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 	authUser := auth.AuthUser{}
 
-	params, err := url.ParseQuery(form.Data)
+	params, err := form.getParams()
 	if err != nil {
 		return &authUser, err
 	}
@@ -298,7 +313,7 @@ func (form *RecordTelegramLogin) submitWithAuthUser(
 			authRecord.MarkAsNew()
 			createForm := pbForms.NewRecordUpsert(txApp, authRecord)
 			createForm.GrantSuperuserAccess()
-			if authUser.Username != "" && regexp.MustCompile(`^\w[\w.]*$`).MatchString(authUser.Username) {
+			if authUser.Username != "" && tgUsernameRegex.MatchString(authUser.Username) {
 				form.CreateData["username"] = authUser.Username
 			}
 			// set random password for new auth record
