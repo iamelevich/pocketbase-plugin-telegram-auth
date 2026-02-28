@@ -116,28 +116,19 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 
 	keys := make([]string, 0, len(params))
 	var hashFromTelegram = ""
-	// Extract hashFromTelegram and create slice of other params keys
+	// Extract hashFromTelegram and create slice of other params
 	for k, v := range params {
 		if k == "hash" {
 			hashFromTelegram = v[0]
 			continue
 		}
-		keys = append(keys, k)
+		strs = append(strs, k+"="+v[0])
 	}
-	// Sort extracted params keys
-	sort.Strings(keys)
+	// Sort extracted params
+	sort.Strings(strs)
 
 	// Create a string with params to validate
-	var sb strings.Builder
-	for i, k := range keys {
-		if i > 0 {
-			sb.WriteByte('\n')
-		}
-		sb.WriteString(k)
-		sb.WriteByte('=')
-		sb.WriteString(params.Get(k))
-	}
-	imploded := sb.String()
+	imploded := strings.Join(strs, "\n")
 
 	// Create hashFromTelegram to check is provided data valid
 	token := form.botToken
