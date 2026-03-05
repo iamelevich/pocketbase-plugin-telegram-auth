@@ -136,28 +136,18 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 		// this is login button data, should use SHA256
 		secretKey = sha256.New()
 	}
-	if _, err = io.WriteString(secretKey, token); err != nil {
-		return false, err
-	}
+	_, _ = io.WriteString(secretKey, token)
 
 	// Optimization: Writing directly to hash avoids string allocations and copies.
 	var secretKeySum [sha256.Size]byte
 	resultHash := hmac.New(sha256.New, secretKey.Sum(secretKeySum[:0]))
 	for i, k := range keys {
 		if i > 0 {
-			if _, err = io.WriteString(resultHash, "\n"); err != nil {
-				return false, err
-			}
+			_, _ = io.WriteString(resultHash, "\n")
 		}
-		if _, err = io.WriteString(resultHash, k); err != nil {
-			return false, err
-		}
-		if _, err = io.WriteString(resultHash, "="); err != nil {
-			return false, err
-		}
-		if _, err = io.WriteString(resultHash, params.Get(k)); err != nil {
-			return false, err
-		}
+		_, _ = io.WriteString(resultHash, k)
+		_, _ = io.WriteString(resultHash, "=")
+		_, _ = io.WriteString(resultHash, params.Get(k))
 	}
 
 	var resultHashSum [sha256.Size]byte
