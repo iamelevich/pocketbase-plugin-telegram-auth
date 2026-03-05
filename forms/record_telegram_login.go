@@ -126,21 +126,8 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 	// Sort extracted params keys
 	sort.Strings(keys)
 
-	// Create a string with params to validate
-	var sb strings.Builder
-	for i, k := range keys {
-		if i > 0 {
-			sb.WriteByte('\n')
-		}
-		sb.WriteString(k)
-		sb.WriteByte('=')
-		sb.WriteString(params.Get(k))
-	}
-	imploded := sb.String()
-
 	// Create hashFromTelegram to check is provided data valid
 	token := form.botToken
-	generatedHash := ""
 	var secretKey hash.Hash
 	if _, ok := params["user"]; ok {
 		// Check is it web app data need to use HMAC_SHA256
@@ -152,11 +139,29 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 	if _, err = io.WriteString(secretKey, token); err != nil {
 		return false, err
 	}
-	resultHash := hmac.New(sha256.New, secretKey.Sum(nil))
-	if _, err = io.WriteString(resultHash, imploded); err != nil {
-		return false, err
+
+	// Optimization: Writing directly to hash avoids string allocations and copies.
+	var secretKeySum [sha256.Size]byte
+	resultHash := hmac.New(sha256.New, secretKey.Sum(secretKeySum[:0]))
+	for i, k := range keys {
+		if i > 0 {
+			if _, err = io.WriteString(resultHash, "\n"); err != nil {
+				return false, err
+			}
+		}
+		if _, err = io.WriteString(resultHash, k); err != nil {
+			return false, err
+		}
+		if _, err = io.WriteString(resultHash, "="); err != nil {
+			return false, err
+		}
+		if _, err = io.WriteString(resultHash, params.Get(k)); err != nil {
+			return false, err
+		}
 	}
-	generatedHash = hex.EncodeToString(resultHash.Sum(nil))
+
+	var resultHashSum [sha256.Size]byte
+	generatedHash := hex.EncodeToString(resultHash.Sum(resultHashSum[:0]))
 
 	return hashFromTelegram == generatedHash, nil
 }
@@ -171,13 +176,15 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 	}
 
 	// Set RawUser data
-	authUser.RawUser = map[string]any{}
+	// Optimization: Pre-allocating map capacity reduces re-allocations.
+	authUser.RawUser = make(map[string]any, len(params))
 	for k, v := range params {
 		authUser.RawUser[k] = v[0]
 	}
 
 	// Set CreateData
-	form.CreateData = map[string]any{}
+	// Optimization: Pre-allocating map capacity for expected fields.
+	form.CreateData = make(map[string]any, 6)
 
 	// If we have user param - this is data from WebApp https://core.telegram.org/bots/webapps#webappinitdata
 	if v, ok := params["user"]; ok {
