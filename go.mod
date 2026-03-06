@@ -5,7 +5,7 @@ go 1.25
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/pocketbase/dbx v1.12.0
-	github.com/pocketbase/pocketbase v0.36.5
+	github.com/pocketbase/pocketbase v0.36.6
 	golang.org/x/oauth2 v0.35.0
 )
 
