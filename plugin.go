@@ -2,8 +2,11 @@ package pocketbase_plugin_telegram_auth
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/iamelevich/pocketbase-plugin-telegram-auth/forms"
 	"github.com/pocketbase/pocketbase/apis"
@@ -37,6 +40,9 @@ type Plugin struct {
 	app        core.App
 	options    *Options
 	collection *core.Collection
+
+	tgWebAppDataSecret []byte
+	tgBotTokenHash     []byte
 }
 
 // Validate plugin options. Return error if some option is invalid.
@@ -82,7 +88,16 @@ func (p *Plugin) GetForm(optAuthRecord *core.Record) (*forms.RecordTelegramLogin
 		return nil, errors.New("Wrong collection type. " + p.options.CollectionKey + " should be auth collection")
 	}
 
-	return forms.NewRecordTelegramLogin(p.app, p.options.BotToken, collection, optAuthRecord), nil
+	form := forms.NewRecordTelegramLogin(
+		p.app,
+		p.options.BotToken,
+		collection,
+		optAuthRecord,
+	)
+	form.WebAppDataSecret = p.tgWebAppDataSecret
+	form.BotTokenHash = p.tgBotTokenHash
+
+	return form, nil
 }
 
 // AuthByTelegramData returns auth record and auth user by Telegram data.
@@ -119,6 +134,18 @@ func Register(app core.App, options *Options) (*Plugin, error) {
 	if err := p.Validate(); err != nil {
 		return p, err
 	}
+
+	// Pre-calculate secrets to avoid redundant hash calculations on every request.
+	// Optimization: Pre-calculating these constant secrets reduces CPU overhead during auth verification.
+	// For WebApp data
+	h1 := hmac.New(sha256.New, []byte("WebAppData"))
+	_, _ = io.WriteString(h1, p.options.BotToken)
+	p.tgWebAppDataSecret = h1.Sum(nil)
+
+	// For login widget data
+	// Optimization: Using Sum256 avoids extra allocations.
+	h2 := sha256.Sum256([]byte(p.options.BotToken))
+	p.tgBotTokenHash = h2[:]
 
 	auth.Providers["telegram"] = func() auth.Provider {
 		// Minimal provider for ExternalAuth validation (core/external_auth_model.go).
