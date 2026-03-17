@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"hash"
 	"io"
 	"net/url"
 	"regexp"
@@ -28,6 +27,10 @@ type RecordTelegramLogin struct {
 	app        core.App
 	collection *core.Collection
 	botToken   string
+
+	// Pre-calculated secrets
+	WebAppDataSecret []byte
+	BotTokenHash     []byte
 
 	// Optional auth record that will be used if no external
 	// auth relation is found (if it is from the same collection)
@@ -127,20 +130,29 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 	sort.Strings(keys)
 
 	// Create hashFromTelegram to check is provided data valid
-	token := form.botToken
-	var secretKey hash.Hash
+	var secret []byte
 	if _, ok := params["user"]; ok {
 		// Check is it web app data need to use HMAC_SHA256
-		secretKey = hmac.New(sha256.New, []byte("WebAppData"))
+		// Optimization: Use pre-calculated secret if provided by the plugin.
+		if form.WebAppDataSecret == nil {
+			h := hmac.New(sha256.New, []byte("WebAppData"))
+			_, _ = io.WriteString(h, form.botToken)
+			form.WebAppDataSecret = h.Sum(nil)
+		}
+		secret = form.WebAppDataSecret
 	} else {
 		// this is login button data, should use SHA256
-		secretKey = sha256.New()
+		// Optimization: Use pre-calculated secret if provided by the plugin.
+		if form.BotTokenHash == nil {
+			h := sha256.New()
+			_, _ = io.WriteString(h, form.botToken)
+			form.BotTokenHash = h.Sum(nil)
+		}
+		secret = form.BotTokenHash
 	}
-	_, _ = io.WriteString(secretKey, token)
 
 	// Optimization: Writing directly to hash avoids string allocations and copies.
-	var secretKeySum [sha256.Size]byte
-	resultHash := hmac.New(sha256.New, secretKey.Sum(secretKeySum[:0]))
+	resultHash := hmac.New(sha256.New, secret)
 	for i, k := range keys {
 		if i > 0 {
 			_, _ = io.WriteString(resultHash, "\n")
