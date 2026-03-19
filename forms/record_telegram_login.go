@@ -177,19 +177,16 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 		return &authUser, err
 	}
 
-	// Set RawUser data
+	// Set RawUser data and extract user info
 	// Optimization: Pre-allocating map capacity reduces re-allocations.
 	authUser.RawUser = make(map[string]any, len(params))
-	for k, v := range params {
-		authUser.RawUser[k] = v[0]
-	}
-
-	// Set CreateData
-	// Optimization: Pre-allocating map capacity for expected fields.
-	form.CreateData = make(map[string]any, 6)
 
 	// If we have user param - this is data from WebApp https://core.telegram.org/bots/webapps#webappinitdata
 	if v, ok := params["user"]; ok {
+		for k, val := range params {
+			authUser.RawUser[k] = val[0]
+		}
+
 		telegramData := TelegramData{}
 		if err = json.Unmarshal([]byte(v[0]), &telegramData); err != nil {
 			return &authUser, err
@@ -199,44 +196,56 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 		authUser.Name = strings.TrimSpace(telegramData.FirstName + " " + telegramData.LastName)
 		authUser.AvatarUrl = telegramData.PhotoUrl
 
-		// Fill CreateData
-		form.CreateData["name"] = authUser.Name
-		form.CreateData["first_name"] = telegramData.FirstName
-		form.CreateData["last_name"] = telegramData.LastName
-		form.CreateData["telegram_username"] = authUser.Username
-		form.CreateData["telegram_id"] = authUser.Id
-		form.CreateData["language_code"] = telegramData.LanguageCode
+		// Set and fill CreateData
+		// Optimization: Pre-allocating map capacity for expected fields.
+		form.CreateData = map[string]any{
+			"name":              authUser.Name,
+			"first_name":        telegramData.FirstName,
+			"last_name":         telegramData.LastName,
+			"telegram_username": authUser.Username,
+			"telegram_id":       authUser.Id,
+			"language_code":     telegramData.LanguageCode,
+		}
 
 		return &authUser, nil
 	}
 
-	// If this is data from widget - all data on to level
+	// If this is data from widget - all data on top level
 	firstName := ""
 	lastName := ""
 	for k, v := range params {
+		val := v[0]
+		authUser.RawUser[k] = val
+
 		switch k {
 		case "id":
-			authUser.Id = v[0]
+			authUser.Id = val
 		case "first_name":
-			firstName = v[0]
+			firstName = val
 		case "last_name":
-			lastName = v[0]
+			lastName = val
 		case "username":
-			authUser.Username = v[0]
+			authUser.Username = val
 		case "language_code":
-			form.CreateData["language_code"] = v[0]
+			// We'll fill CreateData later, but store language_code for now
 		case "photo_url":
-			authUser.AvatarUrl = v[0]
+			authUser.AvatarUrl = val
 		}
 	}
 	authUser.Name = strings.TrimSpace(firstName + " " + lastName)
 
-	// Fill CreateData
-	form.CreateData["name"] = authUser.Name
-	form.CreateData["first_name"] = firstName
-	form.CreateData["last_name"] = lastName
-	form.CreateData["telegram_username"] = authUser.Username
-	form.CreateData["telegram_id"] = authUser.Id
+	// Set and fill CreateData
+	// Optimization: Use composite literal for efficient initialization.
+	form.CreateData = map[string]any{
+		"name":              authUser.Name,
+		"first_name":        firstName,
+		"last_name":         lastName,
+		"telegram_username": authUser.Username,
+		"telegram_id":       authUser.Id,
+	}
+	if lc, ok := params["language_code"]; ok {
+		form.CreateData["language_code"] = lc[0]
+	}
 
 	return &authUser, nil
 }
