@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.9](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.8...v0.15.9) (2026-03-20)
+
+
+### Performance Improvements
+
+* consolidate map iterations in GetAuthUserFromData ([09e93e8](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/09e93e844ab8d1be9b96c0ca173eab20347a4c87))
+
 ## [0.15.8](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.7...v0.15.8) (2026-03-17)
 
 
