@@ -1,6 +1,7 @@
 package forms
 
 import (
+	"cmp"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -8,7 +9,7 @@ import (
 	"io"
 	"net/url"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -116,18 +117,24 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 		return false, err
 	}
 
-	keys := make([]string, 0, len(params))
+	type pair struct {
+		k, v string
+	}
+	pairs := make([]pair, 0, len(params))
 	var hashFromTelegram = ""
-	// Extract hashFromTelegram and create slice of other params keys
+	// Extract hashFromTelegram and create slice of other params pairs
 	for k, v := range params {
 		if k == "hash" {
 			hashFromTelegram = v[0]
 			continue
 		}
-		keys = append(keys, k)
+		pairs = append(pairs, pair{k, v[0]})
 	}
-	// Sort extracted params keys
-	sort.Strings(keys)
+	// Sort extracted params pairs
+	// Optimization: slices.SortFunc with cmp.Compare is more efficient than sort.Strings.
+	slices.SortFunc(pairs, func(a, b pair) int {
+		return cmp.Compare(a.k, b.k)
+	})
 
 	// Create hashFromTelegram to check is provided data valid
 	var secret []byte
@@ -153,19 +160,24 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 
 	// Optimization: Writing directly to hash avoids string allocations and copies.
 	resultHash := hmac.New(sha256.New, secret)
-	for i, k := range keys {
+	for i, p := range pairs {
 		if i > 0 {
 			_, _ = io.WriteString(resultHash, "\n")
 		}
-		_, _ = io.WriteString(resultHash, k)
+		_, _ = io.WriteString(resultHash, p.k)
 		_, _ = io.WriteString(resultHash, "=")
-		_, _ = io.WriteString(resultHash, params.Get(k))
+		_, _ = io.WriteString(resultHash, p.v)
 	}
 
+	// Optimization: Use hmac.Equal with decoded bytes for constant-time comparison and fewer allocations.
 	var resultHashSum [sha256.Size]byte
-	generatedHash := hex.EncodeToString(resultHash.Sum(resultHashSum[:0]))
+	actualHash := resultHash.Sum(resultHashSum[:0])
+	expectedHash, err := hex.DecodeString(hashFromTelegram)
+	if err != nil {
+		return false, err
+	}
 
-	return hashFromTelegram == generatedHash, nil
+	return hmac.Equal(actualHash, expectedHash), nil
 }
 
 // GetAuthUserFromData Parse Data url encoded values to the stuct with user data
