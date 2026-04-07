@@ -1,6 +1,7 @@
 package forms
 
 import (
+	"cmp"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -8,7 +9,7 @@ import (
 	"io"
 	"net/url"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -108,7 +109,7 @@ func (form *RecordTelegramLogin) getParams() (url.Values, error) {
 }
 
 // checkTelegramAuthorization data param. Check https://core.telegram.org/bots/webapps#validating-data-received-via-the-web-app
-// Optimization: Reduces redundant parsing and allocations (~3% faster full auth flow).
+// Optimization: Using slices.SortFunc and hmac.Equal for better performance.
 func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, error) {
 	// Parse string
 	params, err := form.getParams()
@@ -116,22 +117,33 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 		return false, err
 	}
 
-	keys := make([]string, 0, len(params))
+	type kv struct{ k, v string }
+	pairs := make([]kv, 0, len(params))
 	var hashFromTelegram = ""
-	// Extract hashFromTelegram and create slice of other params keys
+	isWebApp := false
+
+	// Extract hashFromTelegram and create slice of other params
 	for k, v := range params {
+		val := v[0]
 		if k == "hash" {
-			hashFromTelegram = v[0]
+			hashFromTelegram = val
 			continue
 		}
-		keys = append(keys, k)
+		if k == "user" {
+			isWebApp = true
+		}
+		pairs = append(pairs, kv{k, val})
 	}
-	// Sort extracted params keys
-	sort.Strings(keys)
+
+	// Sort extracted params pairs
+	// Optimization: Using slices.SortFunc with cmp.Compare is faster than sort.Strings.
+	slices.SortFunc(pairs, func(a, b kv) int {
+		return cmp.Compare(a.k, b.k)
+	})
 
 	// Create hashFromTelegram to check is provided data valid
 	var secret []byte
-	if _, ok := params["user"]; ok {
+	if isWebApp {
 		// Check is it web app data need to use HMAC_SHA256
 		// Optimization: Use pre-calculated secret if provided by the plugin.
 		if form.WebAppDataSecret == nil {
@@ -153,22 +165,29 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 
 	// Optimization: Writing directly to hash avoids string allocations and copies.
 	resultHash := hmac.New(sha256.New, secret)
-	for i, k := range keys {
+	for i, pair := range pairs {
 		if i > 0 {
 			_, _ = io.WriteString(resultHash, "\n")
 		}
-		_, _ = io.WriteString(resultHash, k)
+		_, _ = io.WriteString(resultHash, pair.k)
 		_, _ = io.WriteString(resultHash, "=")
-		_, _ = io.WriteString(resultHash, params.Get(k))
+		_, _ = io.WriteString(resultHash, pair.v)
 	}
 
 	var resultHashSum [sha256.Size]byte
-	generatedHash := hex.EncodeToString(resultHash.Sum(resultHashSum[:0]))
+	generatedHash := resultHash.Sum(resultHashSum[:0])
 
-	return hashFromTelegram == generatedHash, nil
+	decodedHash, err := hex.DecodeString(hashFromTelegram)
+	if err != nil {
+		return false, err
+	}
+
+	// Optimization: hmac.Equal provides constant-time comparison.
+	return hmac.Equal(decodedHash, generatedHash), nil
 }
 
 // GetAuthUserFromData Parse Data url encoded values to the stuct with user data
+// Optimization: Consolidated loops and pre-allocated map capacities for better performance.
 func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 	authUser := auth.AuthUser{}
 
@@ -181,14 +200,39 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 	// Optimization: Pre-allocating map capacity reduces re-allocations.
 	authUser.RawUser = make(map[string]any, len(params))
 
-	// If we have user param - this is data from WebApp https://core.telegram.org/bots/webapps#webappinitdata
-	if v, ok := params["user"]; ok {
-		for k, val := range params {
-			authUser.RawUser[k] = val[0]
+	var userVal string
+	firstName := ""
+	lastName := ""
+	languageCode := ""
+
+	for k, v := range params {
+		val := v[0]
+		authUser.RawUser[k] = val
+		if k == "user" {
+			userVal = val
+			continue
 		}
 
+		switch k {
+		case "id":
+			authUser.Id = val
+		case "first_name":
+			firstName = val
+		case "last_name":
+			lastName = val
+		case "username":
+			authUser.Username = val
+		case "language_code":
+			languageCode = val
+		case "photo_url":
+			authUser.AvatarUrl = val
+		}
+	}
+
+	// If we have user param - this is data from WebApp https://core.telegram.org/bots/webapps#webappinitdata
+	if userVal != "" {
 		telegramData := TelegramData{}
-		if err = json.Unmarshal([]byte(v[0]), &telegramData); err != nil {
+		if err = json.Unmarshal([]byte(userVal), &telegramData); err != nil {
 			return &authUser, err
 		}
 		authUser.Id = strconv.FormatInt(telegramData.Id, 10)
@@ -211,27 +255,6 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 	}
 
 	// If this is data from widget - all data on top level
-	firstName := ""
-	lastName := ""
-	for k, v := range params {
-		val := v[0]
-		authUser.RawUser[k] = val
-
-		switch k {
-		case "id":
-			authUser.Id = val
-		case "first_name":
-			firstName = val
-		case "last_name":
-			lastName = val
-		case "username":
-			authUser.Username = val
-		case "language_code":
-			// We'll fill CreateData later, but store language_code for now
-		case "photo_url":
-			authUser.AvatarUrl = val
-		}
-	}
 	authUser.Name = strings.TrimSpace(firstName + " " + lastName)
 
 	// Set and fill CreateData
@@ -243,8 +266,8 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 		"telegram_username": authUser.Username,
 		"telegram_id":       authUser.Id,
 	}
-	if lc, ok := params["language_code"]; ok {
-		form.CreateData["language_code"] = lc[0]
+	if languageCode != "" {
+		form.CreateData["language_code"] = languageCode
 	}
 
 	return &authUser, nil
