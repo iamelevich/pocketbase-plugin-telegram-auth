@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.10](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.9...v0.15.10) (2026-04-07)
+
+
+### Performance Improvements
+
+* optimize Telegram auth verification and data extraction ([f07e3e9](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/f07e3e9eecb104e351a0ae1ff311a49b25b01a53))
+
 ## [0.15.9](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.8...v0.15.9) (2026-03-20)
 
 
