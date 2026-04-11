@@ -52,6 +52,18 @@ func TestUserTelegramLoginValidate(t *testing.T) {
 			`{"data":"id=185879954&first_name=Ilya&last_name=&username=beer13&language_code=ru&hash=bf8e28bc7dfed2415ef50b70b2ed64759a94cd4ff647fec150cbc721f988066a"}`,
 			[]string{},
 		},
+		{
+			"invalid hash length",
+			"users",
+			`{"data":"id=123&hash=short"}`,
+			[]string{"data"},
+		},
+		{
+			"invalid hex characters",
+			"users",
+			`{"data":"id=123&hash=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"}`,
+			[]string{"data"},
+		},
 	}
 
 	for _, s := range scenarios {

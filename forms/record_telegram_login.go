@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"io"
 	"net/url"
 	"regexp"
 	"slices"
@@ -148,7 +147,7 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 		// Optimization: Use pre-calculated secret if provided by the plugin.
 		if form.WebAppDataSecret == nil {
 			h := hmac.New(sha256.New, []byte("WebAppData"))
-			_, _ = io.WriteString(h, form.botToken)
+			_, _ = h.Write([]byte(form.botToken))
 			form.WebAppDataSecret = h.Sum(nil)
 		}
 		secret = form.WebAppDataSecret
@@ -157,33 +156,40 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 		// Optimization: Use pre-calculated secret if provided by the plugin.
 		if form.BotTokenHash == nil {
 			h := sha256.New()
-			_, _ = io.WriteString(h, form.botToken)
+			_, _ = h.Write([]byte(form.botToken))
 			form.BotTokenHash = h.Sum(nil)
 		}
 		secret = form.BotTokenHash
 	}
 
 	// Optimization: Writing directly to hash avoids string allocations and copies.
+	// Using .Write([]byte(s)) instead of io.WriteString(h, s) allows the compiler
+	// to optimize away the allocation if the string is converted to []byte just for the call.
 	resultHash := hmac.New(sha256.New, secret)
 	for i, pair := range pairs {
 		if i > 0 {
-			_, _ = io.WriteString(resultHash, "\n")
+			_, _ = resultHash.Write([]byte("\n"))
 		}
-		_, _ = io.WriteString(resultHash, pair.k)
-		_, _ = io.WriteString(resultHash, "=")
-		_, _ = io.WriteString(resultHash, pair.v)
+		_, _ = resultHash.Write([]byte(pair.k))
+		_, _ = resultHash.Write([]byte("="))
+		_, _ = resultHash.Write([]byte(pair.v))
 	}
 
 	var resultHashSum [sha256.Size]byte
 	generatedHash := resultHash.Sum(resultHashSum[:0])
 
-	decodedHash, err := hex.DecodeString(hashFromTelegram)
-	if err != nil {
+	// Optimization: Use hex.Decode with a stack-allocated buffer to avoid heap allocation.
+	// We check the length first to avoid panic if the hash is not the expected size.
+	if len(hashFromTelegram) != sha256.Size*2 {
+		return false, nil
+	}
+	var decodedHash [sha256.Size]byte
+	if _, err := hex.Decode(decodedHash[:], []byte(hashFromTelegram)); err != nil {
 		return false, err
 	}
 
 	// Optimization: hmac.Equal provides constant-time comparison.
-	return hmac.Equal(decodedHash, generatedHash), nil
+	return hmac.Equal(decodedHash[:], generatedHash), nil
 }
 
 // GetAuthUserFromData Parse Data url encoded values to the stuct with user data
