@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.11](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.10...v0.15.11) (2026-04-11)
+
+
+### Performance Improvements
+
+* optimize telegram auth hashing and decoding ([647bcd4](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/647bcd4cbdfdbe59c87e0f1184b2004d64955d86))
+* optimize telegram auth hashing and decoding ([2310ee6](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/2310ee64c9602b049e01539ddde6a97c579e346e))
+
 ## [0.15.10](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.9...v0.15.10) (2026-04-07)
 
 
