@@ -330,25 +330,43 @@ func TestRecordTelegramLogin_Coverage(t *testing.T) {
 	})
 
 	t.Run("WebApp name formatting branches", func(t *testing.T) {
-		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
 		// Case: only first_name
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
 		form.Data = "user=%7B%22id%22%3A1%2C%22first_name%22%3A%22Ilya%22%7D&hash=invalid"
 		_, _ = form.GetAuthUserFromData()
 
 		// Case: only last_name (unlikely from TG but for coverage)
+		form = forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
 		form.Data = "user=%7B%22id%22%3A1%2C%22last_name%22%3A%22Amelevich%22%7D&hash=invalid"
 		_, _ = form.GetAuthUserFromData()
+
+		// Case: both names
+		form = forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		form.Data = "user=%7B%22id%22%3A1%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22Amelevich%22%7D&hash=invalid"
+		authData, _ := form.GetAuthUserFromData()
+		if authData.Name != "Ilya Amelevich" {
+			t.Errorf("Expected name Ilya Amelevich, got %q", authData.Name)
+		}
 	})
 
 	t.Run("Widget name formatting branches", func(t *testing.T) {
-		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
 		// Case: only first_name
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
 		form.Data = "id=1&first_name=Ilya&hash=invalid"
 		_, _ = form.GetAuthUserFromData()
 
 		// Case: only last_name
+		form = forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
 		form.Data = "id=1&last_name=Amelevich&hash=invalid"
 		_, _ = form.GetAuthUserFromData()
+
+		// Case: both names
+		form = forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		form.Data = "id=1&first_name=Ilya&last_name=Amelevich&hash=invalid"
+		authData, _ := form.GetAuthUserFromData()
+		if authData.Name != "Ilya Amelevich" {
+			t.Errorf("Expected name Ilya Amelevich, got %q", authData.Name)
+		}
 	})
 
 	t.Run("CreateData initialization", func(t *testing.T) {
