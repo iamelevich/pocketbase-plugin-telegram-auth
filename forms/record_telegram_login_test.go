@@ -315,3 +315,63 @@ func TestSubmit_WithInvalidData(t *testing.T) {
 		t.Error("Expected error for invalid data")
 	}
 }
+
+func TestRecordTelegramLogin_Coverage(t *testing.T) {
+	app, _ := tests.NewTestApp()
+	defer app.Cleanup()
+
+	authCollection, _ := app.FindCollectionByNameOrId("users")
+
+	t.Run("large number of params", func(t *testing.T) {
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		// More than 16 params to trigger heap allocation
+		form.Data = "p1=1&p2=2&p3=3&p4=4&p5=5&p6=6&p7=7&p8=8&p9=9&p10=10&p11=11&p12=12&p13=13&p14=14&p15=15&p16=16&p17=17&hash=invalid"
+		_ = form.Validate()
+	})
+
+	t.Run("WebApp name formatting branches", func(t *testing.T) {
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		// Case: only first_name
+		form.Data = "user=%7B%22id%22%3A1%2C%22first_name%22%3A%22Ilya%22%7D&hash=invalid"
+		_, _ = form.GetAuthUserFromData()
+
+		// Case: only last_name (unlikely from TG but for coverage)
+		form.Data = "user=%7B%22id%22%3A1%2C%22last_name%22%3A%22Amelevich%22%7D&hash=invalid"
+		_, _ = form.GetAuthUserFromData()
+	})
+
+	t.Run("Widget name formatting branches", func(t *testing.T) {
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		// Case: only first_name
+		form.Data = "id=1&first_name=Ilya&hash=invalid"
+		_, _ = form.GetAuthUserFromData()
+
+		// Case: only last_name
+		form.Data = "id=1&last_name=Amelevich&hash=invalid"
+		_, _ = form.GetAuthUserFromData()
+	})
+
+	t.Run("CreateData initialization", func(t *testing.T) {
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		form.Data = "id=1&first_name=Ilya&hash=invalid"
+		// form.CreateData is nil by default
+		_, _ = form.GetAuthUserFromData()
+	})
+
+	t.Run("CreateData persistence", func(t *testing.T) {
+		form := forms.NewRecordTelegramLogin(app, "test", authCollection, nil)
+		form.Data = "id=185879954&first_name=Ilya&last_name=&username=beer13&language_code=ru&hash=bf8e28bc7dfed2415ef50b70b2ed64759a94cd4ff647fec150cbc721f988066a"
+		form.CreateData = map[string]any{
+			"custom_field": "custom_value",
+		}
+
+		_, err := form.GetAuthUserFromData()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if form.CreateData["custom_field"] != "custom_value" {
+			t.Errorf("Expected custom_field to be preserved, got %v", form.CreateData["custom_field"])
+		}
+	})
+}
