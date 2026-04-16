@@ -117,7 +117,13 @@ func (form *RecordTelegramLogin) checkTelegramAuthorization(data string) (bool, 
 	}
 
 	type kv struct{ k, v string }
-	pairs := make([]kv, 0, len(params))
+	// Optimization: Use stack-allocated buffer for params pairs to avoid heap allocation.
+	var pairsBuf [16]kv
+	pairs := pairsBuf[:0]
+	if len(params) > len(pairsBuf) {
+		pairs = make([]kv, 0, len(params))
+	}
+
 	var hashFromTelegram = ""
 	isWebApp := false
 
@@ -243,35 +249,47 @@ func (form *RecordTelegramLogin) GetAuthUserFromData() (*auth.AuthUser, error) {
 		}
 		authUser.Id = strconv.FormatInt(telegramData.Id, 10)
 		authUser.Username = telegramData.Username
-		authUser.Name = strings.TrimSpace(telegramData.FirstName + " " + telegramData.LastName)
+		// Optimization: Avoid strings.TrimSpace and unnecessary concatenation.
+		if telegramData.FirstName != "" && telegramData.LastName != "" {
+			authUser.Name = telegramData.FirstName + " " + telegramData.LastName
+		} else {
+			authUser.Name = telegramData.FirstName + telegramData.LastName
+		}
 		authUser.AvatarUrl = telegramData.PhotoUrl
 
 		// Set and fill CreateData
-		// Optimization: Pre-allocating map capacity for expected fields.
-		form.CreateData = map[string]any{
-			"name":              authUser.Name,
-			"first_name":        telegramData.FirstName,
-			"last_name":         telegramData.LastName,
-			"telegram_username": authUser.Username,
-			"telegram_id":       authUser.Id,
-			"language_code":     telegramData.LanguageCode,
+		// Optimization: Reuse existing map to preserve custom user data and avoid reallocation.
+		if form.CreateData == nil {
+			form.CreateData = make(map[string]any, 6)
 		}
+		form.CreateData["name"] = authUser.Name
+		form.CreateData["first_name"] = telegramData.FirstName
+		form.CreateData["last_name"] = telegramData.LastName
+		form.CreateData["telegram_username"] = authUser.Username
+		form.CreateData["telegram_id"] = authUser.Id
+		form.CreateData["language_code"] = telegramData.LanguageCode
 
 		return &authUser, nil
 	}
 
 	// If this is data from widget - all data on top level
-	authUser.Name = strings.TrimSpace(firstName + " " + lastName)
+	// Optimization: Avoid strings.TrimSpace and unnecessary concatenation.
+	if firstName != "" && lastName != "" {
+		authUser.Name = firstName + " " + lastName
+	} else {
+		authUser.Name = firstName + lastName
+	}
 
 	// Set and fill CreateData
-	// Optimization: Use composite literal for efficient initialization.
-	form.CreateData = map[string]any{
-		"name":              authUser.Name,
-		"first_name":        firstName,
-		"last_name":         lastName,
-		"telegram_username": authUser.Username,
-		"telegram_id":       authUser.Id,
+	// Optimization: Reuse existing map to preserve custom user data and avoid reallocation.
+	if form.CreateData == nil {
+		form.CreateData = make(map[string]any, 5)
 	}
+	form.CreateData["name"] = authUser.Name
+	form.CreateData["first_name"] = firstName
+	form.CreateData["last_name"] = lastName
+	form.CreateData["telegram_username"] = authUser.Username
+	form.CreateData["telegram_id"] = authUser.Id
 	if languageCode != "" {
 		form.CreateData["language_code"] = languageCode
 	}
