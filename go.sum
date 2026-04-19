@@ -75,6 +75,8 @@ github.com/pocketbase/pocketbase v0.36.9 h1:x3mXMB4AwhTzJ34JZpZR7IQyUih7Fx1l86r0
 github.com/pocketbase/pocketbase v0.36.9/go.mod h1:t3sMcAxGHrDAXNcZ+65cZxBMpFP1vBdI9DrghB4n5Gw=
 github.com/pocketbase/pocketbase v0.37.0 h1:4F2mQlr+7eQcRtZBMhUzYa+tk2McI0NpZrIEniR9Y7c=
 github.com/pocketbase/pocketbase v0.37.0/go.mod h1:IJWkP7/6VosFIwrYgdeXglkNtpxvrsvyBUSpJjRbd7s=
+github.com/pocketbase/pocketbase v0.37.1 h1:C1jPYGsP3TsY/EZcvwftIj5DrHujq7XqYXRMA7EIZCY=
+github.com/pocketbase/pocketbase v0.37.1/go.mod h1:IJWkP7/6VosFIwrYgdeXglkNtpxvrsvyBUSpJjRbd7s=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
