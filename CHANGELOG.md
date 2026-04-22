@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.15.12](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.11...v0.15.12) (2026-04-22)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/pocketbase/pocketbase to v0.36.9 ([120949c](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/120949caca21d63867ffa71e3421ecaed1e2e431))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.36.9 ([a2f68c4](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/a2f68c46318f82acf9a8137a8100f08c511a6956))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.0 ([ca30625](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/ca306256f4c65dd990c0e5c3ee5aeebdb02d1a1f))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.0 ([e75c53e](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/e75c53e309783e8733d1615876d8993f5318419d))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.1 ([93a63ce](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/93a63ced1037149cb622846b23db95eb79459f05))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.1 ([b40a462](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/b40a462afaaeb03fc5fc70aaf8024b67442665a4))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.2 ([0e18955](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/0e18955a0db4a75d07f471380ebadd8bd7f2e33f))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.2 ([b797051](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/b797051e1a294a194d46058216f920ca388b4357))
+
+
+### Performance Improvements
+
+* optimize telegram auth and user data processing ([aa04ac9](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/aa04ac90ae5e37f439aa966080a988baa47909ca))
+* optimize telegram auth and user data processing with coverage fixes ([51f29b4](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/51f29b4b874b6ef6de4c2b706b844f1ae3419c26))
+* optimize telegram auth and user data processing with coverage fixes ([bd43461](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/bd43461c093e0c07d6fa36c1c71b65c39fa6b44c))
+
 ## [0.15.11](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.10...v0.15.11) (2026-04-11)
 
 
