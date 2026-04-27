@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.15.13](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.12...v0.15.13) (2026-04-27)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.3 ([98eab47](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/98eab4704bf97c695afbd339dfb0dc6f387e3ce2))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.3 ([6922386](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/69223862393e58d9326abe69ec5eb9703187c999))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.4 ([a3489e3](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/a3489e39ff390e292bb9e50f8834bcfb730e7ad5))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.37.4 ([9096a6f](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/9096a6fd93382d3c87445eac6f1715347c684dd3))
+
 ## [0.15.12](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.11...v0.15.12) (2026-04-22)
 
 
