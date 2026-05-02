@@ -51,6 +51,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-isatty v0.0.21 h1:xYae+lCNBP7QuW4PUnNG61ffM4hVIfm+zUzDuSzYLGs=
 github.com/mattn/go-isatty v0.0.21/go.mod h1:ZXfXG4SQHsB/w3ZeOYbR0PrPwLy+n6xiMrJlRFqopa4=
+github.com/mattn/go-isatty v0.0.22 h1:j8l17JJ9i6VGPUFUYoTUKPSgKe/83EYU2zBC7YNKMw4=
+github.com/mattn/go-isatty v0.0.22/go.mod h1:ZXfXG4SQHsB/w3ZeOYbR0PrPwLy+n6xiMrJlRFqopa4=
 github.com/ncruces/go-strftime v1.0.0 h1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=
 github.com/ncruces/go-strftime v1.0.0/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -83,6 +85,8 @@ github.com/pocketbase/pocketbase v0.37.3 h1:eETDKX0fmXU23IcpfQcCPS1/j0SPGRqxv5Th
 github.com/pocketbase/pocketbase v0.37.3/go.mod h1:IJWkP7/6VosFIwrYgdeXglkNtpxvrsvyBUSpJjRbd7s=
 github.com/pocketbase/pocketbase v0.37.4 h1:z1hfqcw8gqeiup1kISiqyvI5MQb/IiSmfzyNOJNg9AI=
 github.com/pocketbase/pocketbase v0.37.4/go.mod h1:S1Xb+y3X/emSaHHYohzs3+szF5Bd1UbkcwgXlYh4Vho=
+github.com/pocketbase/pocketbase v0.37.5 h1:Qj35cDkzRkZUTDUxDZQoaPohJaLyKXQOfzuK2gZteLs=
+github.com/pocketbase/pocketbase v0.37.5/go.mod h1:gxdfarbZ4gT/ivRNiIa7uJ1a64eY8yncW+NyvA31aLk=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
