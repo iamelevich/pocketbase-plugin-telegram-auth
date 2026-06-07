@@ -27,6 +27,6 @@ jobs:
           go test -v `go list ./... | grep -v -e './examples' -e './test'` -covermode=atomic -coverprofile=coverage.out
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
