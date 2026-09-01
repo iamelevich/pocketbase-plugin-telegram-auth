@@ -1,5 +1,5 @@
 [tools]
-go = "1.27.0"
+go = "1.27.1"
 golangci-lint = "latest"
 prek = "latest"
 node = "latest" # for examples/webapp-react
