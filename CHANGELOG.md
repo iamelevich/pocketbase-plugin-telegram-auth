@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.15.16](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.15...v0.15.16) (2026-09-08)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/pocketbase/pocketbase to v0.39.4 ([d1f947e](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/d1f947ea7e5de269c8bfddcf7ff9971c815d0c69))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.39.4 ([c6eb9a6](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/c6eb9a611160cdba606a61ec93309880c98b68c0))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.39.5 ([4ef7acc](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/4ef7acc8a882c54b22db80d0f7b86cd1bd7e1087))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.39.5 ([7bce811](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/7bce8110293b04f0b73200d7ead8b9067f486bd3))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.39.6 ([34dbb06](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/34dbb06d3d5099f8e1dd5f8d6a4c8ee3ca9c4aa1))
+* **deps:** update module github.com/pocketbase/pocketbase to v0.39.6 ([ba45c48](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/ba45c487b390267ae5ac4901cbad99f525e8a303))
+* **deps:** update module golang.org/x/oauth2 to v0.37.0 ([1a9a963](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/1a9a963498be40b5d8a29699fcef562070798ea2))
+* **deps:** update module golang.org/x/oauth2 to v0.37.0 ([c9f01a0](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/commit/c9f01a0d1a9a76dae43eb11c53ed9e53f563b22a))
+
 ## [0.15.15](https://github.com/iamelevich/pocketbase-plugin-telegram-auth/compare/v0.15.14...v0.15.15) (2026-06-08)
 
 
